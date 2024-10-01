@@ -1,6 +1,10 @@
+import 'dart:io';
+
+import 'package:centralizador/state/app_state.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:provider/provider.dart'; 
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,7 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _initializeNotifications();
+    _initializeNotifications(); // Inicializa as notificações
   }
 
   Future<void> _initializeNotifications() async {
@@ -28,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     await _flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
-    // Solicitar permissão para notificações no iOS
+    // Solicita permissão para notificações no iOS
     await _flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()
         ?.requestPermissions(
@@ -37,8 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
           sound: true,
         ).then((value) {
           if (value == null || !value) {
-            // O usuário negou a permissão
-            _showPermissionDeniedDialog();
+            _showPermissionDeniedDialog(); // Mostra dialogo se permissão negada
           }
         });
   }
@@ -55,7 +58,7 @@ class _HomeScreenState extends State<HomeScreen> {
             TextButton(
               child: const Text("Abrir Configurações"),
               onPressed: () {
-                _openAppSettings();
+                _openAppSettings(); // Abre configurações do aplicativo
                 Navigator.of(context).pop();
               },
             ),
@@ -72,15 +75,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _openAppSettings() async {
-    Uri iosUri = Uri(scheme: 'app-settings'); // Para iOS
+    Uri iosUri = Uri(scheme: 'app-settings'); // URL para configurações do iOS
     if (await canLaunchUrl(iosUri)) {
-      await launchUrl(iosUri);
+      await launchUrl(iosUri); // Lança URL para iOS
     } else {
-      // Para Android
       const String androidPackage = 'com.brightlinks.app'; 
-      Uri androidUri = Uri.parse('market://details?id=$androidPackage');
+      Uri androidUri = Uri.parse('market://details?id=$androidPackage'); // URL para Play Store
       if (await canLaunchUrl(androidUri)) {
-        await launchUrl(androidUri);
+        await launchUrl(androidUri); // Lança URL para Android
       }
     }
   }
@@ -88,32 +90,32 @@ class _HomeScreenState extends State<HomeScreen> {
   void _launchURL(Uri uri) async {
     try {
       if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
+        await launchUrl(uri, mode: LaunchMode.externalApplication); // Lança URL
       }
     } catch (e) {
       print(e.toString());
     }
   }
 
-  void _showLaunchOptions(String name1, Uri uri1, String name2, Uri uri2) {
+  void _showLaunchOptions(Uri uri) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Escolha uma opção"),
-          content: const Text("Escolha um link para abrir:"),
+          title: const Text("Abrir Link"),
+          content: const Text("Deseja abrir o link no navegador ou no aplicativo?"),
           actions: [
             TextButton(
-              child: Text(name1),
+              child: const Text("Navegador"),
               onPressed: () {
-                _launchURL(uri1);
+                _launchURL(uri); // Abre no navegador
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text(name2),
+              child: const Text("Aplicativo"),
               onPressed: () {
-                _launchURL(uri2);
+                _launchURL(uri); // Abre no aplicativo
                 Navigator.of(context).pop();
               },
             ),
@@ -125,19 +127,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Acessa o estado do aplicativo usando o Provider
+    final appState = Provider.of<AppState>(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Bright Links"),
+        title: Text("Bright Links - ${appState.userStatus}"), // Exibe o status do usuário
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          // Botão para abrir o portal do aluno
           InkWell(
             onTap: () => _showLaunchOptions(
-              "Portal do Aluno",
               Uri.parse('https://bbsltda149898.rm.cloudtotvs.com.br/FrameHTML/Web/App/Edu/PortalEducacional/login/'),
-              "Portal Alternativo",
-              Uri.parse('https://exemplo.com/portal'),
             ),
             child: Container(
               margin: const EdgeInsets.all(20),
@@ -160,12 +163,12 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
+          // Botão para abrir o Educonnect
           InkWell(
             onTap: () => _showLaunchOptions(
-              "Educonnect - Site",
-              Uri.parse('https://exemplo.com/educonnect'),
-              "Educonnect - App",
-              Uri.parse('https://exemplo.com/educonnect-app'),
+              Platform.isIOS 
+                  ? Uri.parse('https://apps.apple.com/br/app/meu-educonnect/id1255287155') 
+                  : Uri.parse('https://play.google.com/store/apps/details?id=com.educonnect.totvs&hl=pt_BR&pli=1'),
             ),
             child: Container(
               margin: const EdgeInsets.all(15),
@@ -178,7 +181,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               child: const Center(
                 child: Text(
-                  "Educonnect (Play Store e App Store)",
+                  "Educonnect",
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 15,
@@ -188,12 +191,12 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
+          // Botão para abrir o Daily Connect
           InkWell(
             onTap: () => _showLaunchOptions(
-              "Daily Connect - Site",
-              Uri.parse('https://exemplo.com/dailyconnect'),
-              "Daily Connect - App",
-              Uri.parse('https://exemplo.com/dailyconnect-app'),
+              Platform.isIOS 
+                  ? Uri.parse('https://apps.apple.com/br/app/daily-connect-child-care/id502426621') 
+                  : Uri.parse('https://play.google.com/store/apps/details?id=com.seacloud.dc'),
             ),
             child: Container(
               margin: const EdgeInsets.all(15),
@@ -206,7 +209,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               child: const Center(
                 child: Text(
-                  "Daily Connect (Play Store e App Store)",
+                  "Daily Connect",
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 15,
@@ -216,12 +219,12 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
+          // Botão para abrir o Toddle
           InkWell(
             onTap: () => _showLaunchOptions(
-              "Toddle - Site",
-              Uri.parse('https://exemplo.com/toddle'),
-              "Toddle - App",
-              Uri.parse('https://exemplo.com/toddle-app'),
+              Platform.isIOS 
+                  ? Uri.parse('https://apps.apple.com/br/app/toddle-educator/id1529065681') 
+                  : Uri.parse('https://play.google.com/store/apps/details?id=com.toddle.teacher'),
             ),
             child: Container(
               margin: const EdgeInsets.all(15),
@@ -234,7 +237,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               child: const Center(
                 child: Text(
-                  "Toddle (Play Store e App Store)",
+                  "Toddle",
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 15,
