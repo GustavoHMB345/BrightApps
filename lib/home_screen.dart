@@ -27,7 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
         InitializationSettings(android: initializationSettingsAndroid);
 
     await _flutterLocalNotificationsPlugin.initialize(initializationSettings);
-    
+
     // Solicitar permissão para notificações no iOS
     await _flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()
@@ -72,58 +72,48 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _openAppSettings() async {
-     Uri iosUri = Uri(scheme: 'app-settings'); // Para iOS
+    Uri iosUri = Uri(scheme: 'app-settings'); // Para iOS
     if (await canLaunchUrl(iosUri)) {
       await launchUrl(iosUri);
     } else {
       // Para Android
       const String androidPackage = 'com.brightlinks.app'; 
-       Uri androidUri = Uri.parse('market://details?id=$androidPackage');
+      Uri androidUri = Uri.parse('market://details?id=$androidPackage');
       if (await canLaunchUrl(androidUri)) {
         await launchUrl(androidUri);
       }
     }
   }
 
-  void _launchURL(Uri uri, bool inApp) async {
+  void _launchURL(Uri uri) async {
     try {
       if (await canLaunchUrl(uri)) {
-        if (inApp) {
-          await launchUrl(
-            uri,
-            mode: LaunchMode.inAppWebView,
-          );
-        } else {
-          await launchUrl(
-            uri,
-            mode: LaunchMode.externalApplication,
-          );
-        }
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
       }
     } catch (e) {
       print(e.toString());
     }
   }
 
-  void _showLaunchOptions(Uri uri) {
+  void _showLaunchOptions(String name1, Uri uri1, String name2, Uri uri2) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text("Escolha uma opção"),
-          content: const Text("Deseja abrir o link no app ou no navegador?"),
+          content: const Text("Escolha um link para abrir:"),
           actions: [
             TextButton(
-              child: const Text("No app"),
+              child: Text(name1),
               onPressed: () {
-                _launchURL(uri, true);
+                _launchURL(uri1);
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: const Text("No navegador"),
+              child: Text(name2),
               onPressed: () {
-                _launchURL(uri, false);
+                _launchURL(uri2);
                 Navigator.of(context).pop();
               },
             ),
@@ -143,7 +133,12 @@ class _HomeScreenState extends State<HomeScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           InkWell(
-            onTap: () => _showLaunchOptions(Uri.parse('https://bbsltda149898.rm.cloudtotvs.com.br/FrameHTML/Web/App/Edu/PortalEducacional/login/')),
+            onTap: () => _showLaunchOptions(
+              "Portal do Aluno",
+              Uri.parse('https://bbsltda149898.rm.cloudtotvs.com.br/FrameHTML/Web/App/Edu/PortalEducacional/login/'),
+              "Portal Alternativo",
+              Uri.parse('https://exemplo.com/portal'),
+            ),
             child: Container(
               margin: const EdgeInsets.all(20),
               height: 50,
@@ -166,7 +161,12 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           InkWell(
-            onTap: () => _showLaunchOptions(Uri.parse('https://exemplo.com/educonnect')),
+            onTap: () => _showLaunchOptions(
+              "Educonnect - Site",
+              Uri.parse('https://exemplo.com/educonnect'),
+              "Educonnect - App",
+              Uri.parse('https://exemplo.com/educonnect-app'),
+            ),
             child: Container(
               margin: const EdgeInsets.all(15),
               height: 50,
@@ -189,7 +189,12 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           InkWell(
-            onTap: () => _showLaunchOptions(Uri.parse('https://exemplo.com/dailyconnect')),
+            onTap: () => _showLaunchOptions(
+              "Daily Connect - Site",
+              Uri.parse('https://exemplo.com/dailyconnect'),
+              "Daily Connect - App",
+              Uri.parse('https://exemplo.com/dailyconnect-app'),
+            ),
             child: Container(
               margin: const EdgeInsets.all(15),
               height: 50,
@@ -212,7 +217,12 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           InkWell(
-            onTap: () => _showLaunchOptions(Uri.parse('https://exemplo.com/toddle')),
+            onTap: () => _showLaunchOptions(
+              "Toddle - Site",
+              Uri.parse('https://exemplo.com/toddle'),
+              "Toddle - App",
+              Uri.parse('https://exemplo.com/toddle-app'),
+            ),
             child: Container(
               margin: const EdgeInsets.all(15),
               height: 50,
