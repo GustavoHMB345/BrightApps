@@ -1,10 +1,9 @@
-import 'dart:io';
-
 import 'package:centralizador/state/app_state.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:provider/provider.dart'; 
+import 'dart:io' show Platform;
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,7 +19,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _initializeNotifications(); // Inicializa as notificações
+    _initializeNotifications();
   }
 
   Future<void> _initializeNotifications() async {
@@ -32,7 +31,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
     await _flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
-    // Solicita permissão para notificações no iOS
     await _flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()
         ?.requestPermissions(
@@ -41,7 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
           sound: true,
         ).then((value) {
           if (value == null || !value) {
-            _showPermissionDeniedDialog(); // Mostra dialogo se permissão negada
+            _showPermissionDeniedDialog();
           }
         });
   }
@@ -58,7 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
             TextButton(
               child: const Text("Abrir Configurações"),
               onPressed: () {
-                _openAppSettings(); // Abre configurações do aplicativo
+                _openAppSettings();
                 Navigator.of(context).pop();
               },
             ),
@@ -75,14 +73,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _openAppSettings() async {
-    Uri iosUri = Uri(scheme: 'app-settings'); // URL para configurações do iOS
+    Uri iosUri = Uri(scheme: 'app-settings'); // Para iOS
     if (await canLaunchUrl(iosUri)) {
-      await launchUrl(iosUri); // Lança URL para iOS
+      await launchUrl(iosUri);
     } else {
       const String androidPackage = 'com.brightlinks.app'; 
-      Uri androidUri = Uri.parse('market://details?id=$androidPackage'); // URL para Play Store
+      Uri androidUri = Uri.parse('market://details?id=$androidPackage');
       if (await canLaunchUrl(androidUri)) {
-        await launchUrl(androidUri); // Lança URL para Android
+        await launchUrl(androidUri);
       }
     }
   }
@@ -90,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _launchURL(Uri uri) async {
     try {
       if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication); // Lança URL
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
       }
     } catch (e) {
       print(e.toString());
@@ -108,14 +106,14 @@ class _HomeScreenState extends State<HomeScreen> {
             TextButton(
               child: const Text("Navegador"),
               onPressed: () {
-                _launchURL(uri); // Abre no navegador
+                _launchURL(uri);
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
               child: const Text("Aplicativo"),
               onPressed: () {
-                _launchURL(uri); // Abre no aplicativo
+                _launchURL(uri);
                 Navigator.of(context).pop();
               },
             ),
@@ -127,17 +125,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Acessa o estado do aplicativo usando o Provider
-    final appState = Provider.of<AppState>(context);
+    final appState = Provider.of<AppState>(context); // Acessa o estado do aplicativo
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Bright Links - ${appState.userStatus}"), // Exibe o status do usuário
+        title: const Text("Bright Links"),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Botão para abrir o portal do aluno
+          Text('Status: ${appState.status}'), // Exibe o status atual
           InkWell(
             onTap: () => _showLaunchOptions(
               Uri.parse('https://bbsltda149898.rm.cloudtotvs.com.br/FrameHTML/Web/App/Edu/PortalEducacional/login/'),
@@ -163,7 +160,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          // Botão para abrir o Educonnect
           InkWell(
             onTap: () => _showLaunchOptions(
               Platform.isIOS 
@@ -191,7 +187,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          // Botão para abrir o Daily Connect
           InkWell(
             onTap: () => _showLaunchOptions(
               Platform.isIOS 
@@ -219,7 +214,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          // Botão para abrir o Toddle
           InkWell(
             onTap: () => _showLaunchOptions(
               Platform.isIOS 

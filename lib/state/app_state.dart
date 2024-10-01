@@ -1,16 +1,12 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
-// Classe que gerencia o estado do aplicativo
 class AppState extends ChangeNotifier {
-  // Variável privada que armazena o status do usuário
-  String _userStatus = 'Offline';
+  String _status = 'offline'; // Status inicial do usuário
 
-  // Getter que permite acessar o status do usuário
-  String get userStatus => _userStatus;
+  String get status => _status; // Getter para o status
 
-  // Método que atualiza o status do usuário
-  void updateUserStatus(String status) {
-    _userStatus = status; // Atualiza o status
-    notifyListeners(); // Notifica os ouvintes sobre a mudança de estado
+  void updateStatus(String newStatus) {
+    _status = newStatus; // Atualiza o status
+    notifyListeners(); // Notifica os ouvintes sobre a mudança
   }
 }
