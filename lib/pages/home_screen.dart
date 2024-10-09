@@ -1,11 +1,9 @@
+import 'package:centralizador/state/app_state.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'dart:io' show Platform;
 import 'package:provider/provider.dart';
-import 'package:centralizador/state/app_state.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,7 +13,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
 
   @override
   void initState() {
@@ -24,8 +23,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _initializeNotifications() async {
-    const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
-    const InitializationSettings initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
+    const AndroidInitializationSettings initializationSettingsAndroid =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+
+    const InitializationSettings initializationSettings =
+        InitializationSettings(android: initializationSettingsAndroid);
+
     await _flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
     await _flutterLocalNotificationsPlugin
@@ -35,10 +38,10 @@ class _HomeScreenState extends State<HomeScreen> {
           badge: true,
           sound: true,
         ).then((value) {
-      if (value == null || !value) {
-        _showPermissionDeniedDialog();
-      }
-    });
+          if (value == null || !value) {
+            _showPermissionDeniedDialog();
+          }
+        });
   }
 
   void _showPermissionDeniedDialog() {
@@ -74,7 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (await canLaunchUrl(iosUri)) {
       await launchUrl(iosUri);
     } else {
-      const String androidPackage = 'com.brightlinks.app';
+      const String androidPackage = 'com.brightlinks.app'; 
       Uri androidUri = Uri.parse('market://details?id=$androidPackage');
       if (await canLaunchUrl(androidUri)) {
         await launchUrl(androidUri);
@@ -121,104 +124,125 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
-Widget build(BuildContext context) {
-  final images = List.generate(
-    10,
-    (index) => Hero(
-      tag: 'image-$index',
-      child: CachedNetworkImage(
-        imageUrl: 'https://picsum.photos/seed/${index * 7}/350/250',
-        fit: BoxFit.cover,
-        fadeInDuration: Duration.zero,
+  Widget build(BuildContext context) {
+    final appState = Provider.of<AppState>(context); // Acessa o estado do aplicativo
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Bright Links"),
       ),
-    ),
-  );
-  
-  final appState = Provider.of<AppState>(context); // Acessa o estado do aplicativo
-
-  return Scaffold(
-    appBar: AppBar(
-      title: const Text("Bright Links"),
-    ),
-    body: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [ 
-        // Usando as imagens no lugar do texto estático 'Carousel'
-        Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxWidth: 250,
-              maxHeight: 250,
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('Status: ${appState.status}'), // Exibe o status atual
+          InkWell(
+            onTap: () => _showLaunchOptions(
+              Uri.parse('https://bbsltda149898.rm.cloudtotvs.com.br/FrameHTML/Web/App/Edu/PortalEducacional/login/'),
             ),
-            // Aqui exibe as imagens em vez do texto "Carousel"
-            child: PageView(
-              children: images, // Lista de imagens
-            ),
-          ),
-        ),
-        const SizedBox(height: 20),
-        Text('Status: ${appState.status}'), // Exibe o status atual
-        _buildLinkButton(
-          "Portal do aluno",
-          'https://bbsltda149898.rm.cloudtotvs.com.br/FrameHTML/Web/App/Edu/PortalEducacional/login/',
-          Colors.indigo,
-        ),
-        _buildLinkButton(
-          "Educonnect",
-          Platform.isIOS
-              ? 'https://apps.apple.com/br/app/meu-educonnect/id1255287155'
-              : 'https://play.google.com/store/apps/details?id=com.educonnect.totvs&hl=pt_BR&pli=1',
-          Colors.blue,
-        ),
-        _buildLinkButton(
-          "Daily Connect",
-          Platform.isIOS
-              ? 'https://apps.apple.com/br/app/daily-connect-child-care/id502426621'
-              : 'https://play.google.com/store/apps/details?id=com.seacloud.dc',
-          Colors.orange,
-        ),
-        _buildLinkButton(
-          "Toddle",
-          Platform.isIOS
-              ? 'https://apps.apple.com/br/app/toddle-educator/id1529065681'
-              : 'https://play.google.com/store/apps/details?id=com.toddle.teacher',
-          Colors.red,
-        ),
-      ],
-    ),
-  );
-}
-
-  Widget _buildLinkButton(String title, String url, Color color) {
-    return InkWell(
-      onTap: () => _showLaunchOptions(Uri.parse(url)),
-      child: Container(
-        margin: const EdgeInsets.all(15),
-        height: 50,
-        width: MediaQuery.of(context).size.width,
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Center(
-          child: Text(
-            title,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
+            child: Container(
+              margin: const EdgeInsets.all(20),
+              height: 50,
+              width: MediaQuery.of(context).size.width,
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.indigo,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Center(
+                child: Text(
+                  "Portal do aluno",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
             ),
           ),
-        ),
+          InkWell(
+            onTap: () => _showLaunchOptions(
+              Platform.isIOS 
+                  ? Uri.parse('https://apps.apple.com/br/app/meu-educonnect/id1255287155') 
+                  : Uri.parse('https://play.google.com/store/apps/details?id=com.educonnect.totvs&hl=pt_BR&pli=1'),
+            ),
+            child: Container(
+              margin: const EdgeInsets.all(15),
+              height: 50,
+              width: MediaQuery.of(context).size.width,
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.blue,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Center(
+                child: Text(
+                  "Educonnect",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          InkWell(
+            onTap: () => _showLaunchOptions(
+              Platform.isIOS 
+                  ? Uri.parse('https://apps.apple.com/br/app/daily-connect-child-care/id502426621') 
+                  : Uri.parse('https://play.google.com/store/apps/details?id=com.seacloud.dc'),
+            ),
+            child: Container(
+              margin: const EdgeInsets.all(15),
+              height: 50,
+              width: MediaQuery.of(context).size.width,
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.orange,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Center(
+                child: Text(
+                  "Daily Connect",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          InkWell(
+            onTap: () => _showLaunchOptions(
+              Platform.isIOS 
+                  ? Uri.parse('https://apps.apple.com/br/app/toddle-educator/id1529065681') 
+                  : Uri.parse('https://play.google.com/store/apps/details?id=com.toddle.teacher'),
+            ),
+            child: Container(
+              margin: const EdgeInsets.all(15),
+              height: 50,
+              width: MediaQuery.of(context).size.width,
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.red,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Center(
+                child: Text(
+                  "Toddle",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
-
-
-
-
-
-
-
