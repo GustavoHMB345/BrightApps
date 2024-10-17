@@ -17,7 +17,6 @@ class _HomeScreenState extends State<HomeScreen> {
   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
-  // Variável para armazenar o termo de pesquisa
   String searchTerm = '';
 
   @override
@@ -77,7 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _openAppSettings() async {
-    Uri iosUri = Uri(scheme: 'app-settings'); // Para iOS
+    Uri iosUri = Uri(scheme: 'app-settings');
     if (await canLaunchUrl(iosUri)) {
       await launchUrl(iosUri);
     } else {
@@ -99,39 +98,10 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _showLaunchOptions(Uri uri) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Abrir Link"),
-          content: const Text("Deseja abrir o link no navegador ou no aplicativo?"),
-          actions: [
-            TextButton(
-              child: const Text("Navegador"),
-              onPressed: () {
-                _launchURL(uri);
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: const Text("Aplicativo"),
-              onPressed: () {
-                _launchURL(uri);
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    final appState = Provider.of<AppState>(context); // Acessa o estado do aplicativo
+    final appState = Provider.of<AppState>(context);
 
-    // Links para os carrosséis
     final List<Map<String, dynamic>> carouselItems1 = [
       {
         'title': 'Portal do aluno',
@@ -179,7 +149,6 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     ];
 
-    // Função para filtrar itens com base no termo de pesquisa
     List<Map<String, dynamic>> filterItems(List<Map<String, dynamic>> items) {
       if (searchTerm.isEmpty) {
         return items;
@@ -187,240 +156,138 @@ class _HomeScreenState extends State<HomeScreen> {
       return items.where((item) => item['title'].toLowerCase().contains(searchTerm.toLowerCase())).toList();
     }
 
-    // Função para lidar com a pesquisa
-    void search(String query) {
-      setState(() {
-        searchTerm = query.isNotEmpty ? query : '';
-      });
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: const Text("Bright Links"),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {
-              showSearch(
-                context: context,
-                delegate: CustomSearchDelegate(
-                  onSearch: search, // Chama a função de pesquisa diretamente
-                  items: [...carouselItems1, ...carouselItems2, ...carouselItems3],
-                  launchUrl: _launchURL, // Passa a função para abrir o URL
-                ),
-              );
-            },
-          ),
-        ],
       ),
-      body: searchTerm.isNotEmpty
-          ? Center(
-              child: _buildSingleResult(
-                [...carouselItems1, ...carouselItems2, ...carouselItems3]
-                  .where((item) => item['title'].toLowerCase().contains(searchTerm.toLowerCase()))
-                  .toSet() // Remove duplicatas
-                  .toList(),
+      body: SingleChildScrollView( 
+        child: Column(
+          mainAxisSize: MainAxisSize.min, 
+          children: [
+            // Campo de busca
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: TextField(
+                onChanged: (value) {
+                  setState(() {
+                    searchTerm = value;
+                  });
+                },
+                decoration: InputDecoration(
+                  hintText: "Buscar...",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
               ),
-            )
-          : Column(
-              mainAxisSize: MainAxisSize.max, // Garante que a coluna ocupe todo o espaço
-              children: [
-                Text('Status: ${appState.status}'), // Exibe o status atual
-
-                // Primeiro carrossel
-                Expanded(
-                  child: CarouselSlider(
-                    options: CarouselOptions(height: 200),
-                    items: filterItems(carouselItems1).map((item) {
-                      return Builder(
-                        builder: (BuildContext context) {
-                          return InkWell(
-                            onTap: () => _showLaunchOptions(item['url']),
-                            child: Container(
-                              width: MediaQuery.of(context).size.width,
-                              margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                              decoration: BoxDecoration(
-                                color: item['color'],
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  item['title'],
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18.0,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      );
-                    }).toList(),
-                  ),
-                ),
-
-                const SizedBox(height: 20), // Espaço entre os carrosséis
-
-                // Segundo carrossel
-                Expanded(
-                  child: CarouselSlider(
-                    options: CarouselOptions(height: 200),
-                    items: filterItems(carouselItems2).map((item) {
-                      return Builder(
-                        builder: (BuildContext context) {
-                          return InkWell(
-                            onTap: () => _showLaunchOptions(item['url']),
-                            child: Container(
-                              width: MediaQuery.of(context).size.width,
-                              margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                              decoration: BoxDecoration(
-                                color: item['color'],
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  item['title'],
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18.0,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      );
-                    }).toList(),
-                  ),
-                ),
-
-                const SizedBox(height: 20), // Espaço entre os carrosséis
-
-                // Terceiro carrossel
-                Expanded(
-                  child: CarouselSlider(
-                    options: CarouselOptions(height: 200),
-                    items: filterItems(carouselItems3).map((item) {
-                      return Builder(
-                        builder: (BuildContext context) {
-                          return InkWell(
-                            onTap: () => _showLaunchOptions(item['url']),
-                            child: Container(
-                              width: MediaQuery.of(context).size.width,
-                              margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                              decoration: BoxDecoration(
-                                color: item['color'],
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  item['title'],
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18.0,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ],
             ),
-    );
-  }
 
-  // Widget para exibir o resultado único da pesquisa
-  Widget _buildSingleResult(List<Map<String, dynamic>> items) {
-    if (items.isEmpty) {
-      return const Text("Nenhum resultado encontrado.");
-    }
+            const SizedBox(height: 20),
 
-    final item = items.first; // Exibe apenas o primeiro resultado
-    return Card(
-      color: item['color'],
-      child: ListTile(
-        title: Text(
-          item['title'],
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 20.0,
-            fontWeight: FontWeight.bold,
-          ),
+            // Carrossel 1
+            CarouselSlider(
+              options: CarouselOptions(height: 200),
+              items: filterItems(carouselItems1).map((item) {
+                return Builder(
+                  builder: (BuildContext context) {
+                    return InkWell(
+                      onTap: () => _launchURL(item['url']),
+                      child: Container(
+                        width: MediaQuery.of(context).size.width,
+                        margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                        decoration: BoxDecoration(
+                          color: item['color'],
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Center(
+                          child: Text(
+                            item['title'],
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              }).toList(),
+            ),
+
+            const SizedBox(height: 20),
+
+            // Carrossel 2
+            CarouselSlider(
+              options: CarouselOptions(height: 200),
+              items: filterItems(carouselItems2).map((item) {
+                return Builder(
+                  builder: (BuildContext context) {
+                    return InkWell(
+                      onTap: () => _launchURL(item['url']),
+                      child: Container(
+                        width: MediaQuery.of(context).size.width,
+                        margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                        decoration: BoxDecoration(
+                          color: item['color'],
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Center(
+                          child: Text(
+                            item['title'],
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              }).toList(),
+            ),
+
+            const SizedBox(height: 20),
+
+            // Carrossel 3
+            CarouselSlider(
+              options: CarouselOptions(height: 200),
+              items: filterItems(carouselItems3).map((item) {
+                return Builder(
+                  builder: (BuildContext context) {
+                    return InkWell(
+                      onTap: () => _launchURL(item['url']),
+                      child: Container(
+                        width: MediaQuery.of(context).size.width,
+                        margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                        decoration: BoxDecoration(
+                          color: item['color'],
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Center(
+                          child: Text(
+                            item['title'],
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              }).toList(),
+            ),
+
+            const SizedBox(height: 20), // Espaço final após o último carrossel
+          ],
         ),
-        onTap: () => _launchURL(item['url']),
       ),
-    );
-  }
-}
-
-// Classe personalizada para o delegate de pesquisa
-class CustomSearchDelegate extends SearchDelegate {
-  final Function(String) onSearch;
-  final List<Map<String, dynamic>> items;
-  final Function(Uri) launchUrl;
-
-  CustomSearchDelegate({
-    required this.onSearch,
-    required this.items,
-    required this.launchUrl,
-  });
-
-  @override
-  List<Widget> buildActions(BuildContext context) {
-    return [
-      IconButton(
-        icon: const Icon(Icons.clear),
-        onPressed: () {
-          query = '';
-          onSearch(query);
-        },
-      ),
-    ];
-  }
-
-  @override
-  Widget buildLeading(BuildContext context) {
-    return IconButton(
-      icon: const Icon(Icons.arrow_back),
-      onPressed: () {
-        close(context, null);
-      },
-    );
-  }
-
-  @override
-  Widget buildResults(BuildContext context) {
-    final results = items.where((item) => item['title'].toLowerCase().contains(query.toLowerCase())).toList();
-
-    return ListView(
-      children: results.map((item) {
-        return ListTile(
-          title: Text(item['title']),
-          onTap: () => launchUrl(item['url']),
-        );
-      }).toList(),
-    );
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    final suggestions = items.where((item) => item['title'].toLowerCase().contains(query.toLowerCase())).toList();
-
-    return ListView(
-      children: suggestions.map((item) {
-        return ListTile(
-          title: Text(item['title']),
-          onTap: () => launchUrl(item['url']),
-        );
-      }).toList(),
     );
   }
 }
