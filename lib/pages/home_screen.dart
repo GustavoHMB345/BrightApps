@@ -1,9 +1,7 @@
-import 'package:centralizador/state/app_state.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'dart:io' show Platform;
-import 'package:provider/provider.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -35,16 +33,17 @@ class _HomeScreenState extends State<HomeScreen> {
     await _flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
     await _flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()
+        .resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin>()
         ?.requestPermissions(
           alert: true,
           badge: true,
           sound: true,
         ).then((value) {
-          if (value == null || !value) {
-            _showPermissionDeniedDialog();
-          }
-        });
+      if (value == null || !value) {
+        _showPermissionDeniedDialog();
+      }
+    });
   }
 
   void _showPermissionDeniedDialog() {
@@ -100,8 +99,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final appState = Provider.of<AppState>(context);
-
     final List<Map<String, dynamic>> carouselItems1 = [
       {
         'title': 'Portal do aluno',
@@ -110,36 +107,36 @@ class _HomeScreenState extends State<HomeScreen> {
       },
       {
         'title': 'Educonnect',
-        'url': Platform.isIOS 
+        'url': Platform.isIOS
             ? Uri.parse('https://apps.apple.com/br/app/meu-educonnect/id1255287155')
             : Uri.parse('https://play.google.com/store/apps/details?id=com.educonnect.totvs&hl=pt_BR&pli=1'),
         'color': Colors.blue,
+      },
+      {
+        'title': 'Daily Connect',
+        'url': Platform.isIOS
+            ? Uri.parse('https://apps.apple.com/br/app/daily-connect-child-care/id502426621')
+            : Uri.parse('https://play.google.com/store/apps/details?id=com.seacloud.dc'),
+        'color': Colors.orange,
       },
     ];
 
     final List<Map<String, dynamic>> carouselItems2 = [
       {
-        'title': 'Daily Connect',
-        'url': Platform.isIOS
-            ? Uri.parse('https://apps.apple.com/br/app/daily-connect-child-care/id502426621')
-            : Uri.parse('https://play.google.com/store/apps/details?id=com.seacloud.dc'),
-        'color': Colors.orange,
-      },
-      {
         'title': 'Portal do aluno',
         'url': Uri.parse('https://bbsltda149898.rm.cloudtotvs.com.br/FrameHTML/Web/App/Edu/PortalEducacional/login/'),
         'color': Colors.indigo,
-      } 
+      },
+      {
+        'title': 'Educonnect',
+        'url': Platform.isIOS
+            ? Uri.parse('https://apps.apple.com/br/app/meu-educonnect/id1255287155')
+            : Uri.parse('https://play.google.com/store/apps/details?id=com.educonnect.totvs&hl=pt_BR&pli=1'),
+        'color': Colors.blue,
+      },  
     ];
 
     final List<Map<String, dynamic>> carouselItems3 = [
-      {
-        'title': 'Daily Connect',
-        'url': Platform.isIOS
-            ? Uri.parse('https://apps.apple.com/br/app/daily-connect-child-care/id502426621')
-            : Uri.parse('https://play.google.com/store/apps/details?id=com.seacloud.dc'),
-        'color': Colors.orange,
-      },
       {
         'title': 'Toddle',
         'url': Platform.isIOS
@@ -147,22 +144,44 @@ class _HomeScreenState extends State<HomeScreen> {
             : Uri.parse('https://play.google.com/store/apps/details?id=com.toddle.teacher'),
         'color': Colors.red,
       },
+      { 
+        'title': 'Portal do aluno',
+        'url': Uri.parse('https://bbsltda149898.rm.cloudtotvs.com.br/FrameHTML/Web/App/Edu/PortalEducacional/login/'),
+        'color': Colors.indigo,
+      },
+
+    ];final List<Map<String, dynamic>> carouselItems4 = [
+      {
+        'title': 'Toddle',
+        'url': Platform.isIOS
+            ? Uri.parse('https://apps.apple.com/br/app/toddle-educator/id1529065681')
+            : Uri.parse('https://play.google.com/store/apps/details?id=com.toddle.teacher'),
+        'color': Colors.red,
+      },
+      {
+        'title': 'Portal do aluno',
+        'url': Uri.parse('https://bbsltda149898.rm.cloudtotvs.com.br/FrameHTML/Web/App/Edu/PortalEducacional/login/'),
+        'color': Colors.indigo,
+      },
     ];
 
     List<Map<String, dynamic>> filterItems(List<Map<String, dynamic>> items) {
       if (searchTerm.isEmpty) {
         return items;
       }
-      return items.where((item) => item['title'].toLowerCase().contains(searchTerm.toLowerCase())).toList();
+      return items
+          .where((item) =>
+              item['title'].toLowerCase().contains(searchTerm.toLowerCase()))
+          .toList();
     }
 
     return Scaffold(
       appBar: AppBar(
         title: const Text("Bright Links"),
       ),
-      body: SingleChildScrollView( 
+      body: SingleChildScrollView(
         child: Column(
-          mainAxisSize: MainAxisSize.min, 
+          mainAxisSize: MainAxisSize.min,
           children: [
             // Campo de busca
             Padding(
@@ -184,16 +203,29 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 20),
 
+            // Nome acima do carrossel 1
+            const Text(
+              'Infantil',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 10),
+
             // Carrossel 1
             CarouselSlider(
-              options: CarouselOptions(height: 200),
+              options: CarouselOptions(
+                height: 180,
+                viewportFraction: 0.6, // Mostra uma fração do carrossel
+                enlargeCenterPage: true, // Destaca o item central
+              ),
               items: filterItems(carouselItems1).map((item) {
                 return Builder(
                   builder: (BuildContext context) {
                     return InkWell(
                       onTap: () => _launchURL(item['url']),
                       child: Container(
-                        width: MediaQuery.of(context).size.width,
+                        width: 700, // Modifique o tamanho da largura dos cards
+                        height: 150, // Modifique a altura dos cards
                         margin: const EdgeInsets.symmetric(horizontal: 5.0),
                         decoration: BoxDecoration(
                           color: item['color'],
@@ -218,16 +250,29 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 20),
 
+            // Nome acima do carrossel 2
+            const Text(
+              'Fundamental 1',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 10),
+
             // Carrossel 2
             CarouselSlider(
-              options: CarouselOptions(height: 200),
+              options: CarouselOptions(
+                height: 180,
+                viewportFraction: 0.6, // Mostra uma fração do carrossel
+                enlargeCenterPage: true, // Destaca o item central
+              ),
               items: filterItems(carouselItems2).map((item) {
                 return Builder(
                   builder: (BuildContext context) {
                     return InkWell(
                       onTap: () => _launchURL(item['url']),
                       child: Container(
-                        width: MediaQuery.of(context).size.width,
+                        width: 700,
+                        height: 150,
                         margin: const EdgeInsets.symmetric(horizontal: 5.0),
                         decoration: BoxDecoration(
                           color: item['color'],
@@ -252,16 +297,29 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 20),
 
+            // Nome acima do carrossel 3
+            const Text(
+              'Fundamental 2',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 10),
+
             // Carrossel 3
             CarouselSlider(
-              options: CarouselOptions(height: 200),
+              options: CarouselOptions(
+                height: 180,
+                viewportFraction: 0.6, // Mostra uma fração do carrossel
+                enlargeCenterPage: true, // Destaca o item central
+              ),
               items: filterItems(carouselItems3).map((item) {
                 return Builder(
                   builder: (BuildContext context) {
                     return InkWell(
                       onTap: () => _launchURL(item['url']),
                       child: Container(
-                        width: MediaQuery.of(context).size.width,
+                        width: 700,
+                        height: 150,
                         margin: const EdgeInsets.symmetric(horizontal: 5.0),
                         decoration: BoxDecoration(
                           color: item['color'],
@@ -284,7 +342,53 @@ class _HomeScreenState extends State<HomeScreen> {
               }).toList(),
             ),
 
-            const SizedBox(height: 20), // Espaço final após o último carrossel
+            const SizedBox(height: 20),
+            
+             // Nome acima do carrossel 2
+            const Text(
+              'Ensino médio',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 10),
+
+            // Carrossel 4
+            CarouselSlider(
+              options: CarouselOptions(
+                height: 180,
+                viewportFraction: 0.6, // Mostra uma fração do carrossel
+                enlargeCenterPage: true, // Destaca o item central
+              ),
+              items: filterItems(carouselItems4).map((item) {
+                return Builder(
+                  builder: (BuildContext context) {
+                    return InkWell(
+                      onTap: () => _launchURL(item['url']),
+                      child: Container(
+                        width: 700,
+                        height: 150,
+                        margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                        decoration: BoxDecoration(
+                          color: item['color'],
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Center(
+                          child: Text(
+                            item['title'],
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              }).toList(),
+            ),
+ // Espaço final após o último carrossel
           ],
         ),
       ),
