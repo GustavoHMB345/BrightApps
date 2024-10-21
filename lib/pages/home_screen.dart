@@ -144,6 +144,13 @@ class _HomeScreenState extends State<HomeScreen> {
             : Uri.parse('https://play.google.com/store/apps/details?id=com.toddle.teacher'),
         'color': Colors.red,
       },
+       {
+        'title': 'Educonnect',
+        'url': Platform.isIOS
+            ? Uri.parse('https://apps.apple.com/br/app/meu-educonnect/id1255287155')
+            : Uri.parse('https://play.google.com/store/apps/details?id=com.educonnect.totvs&hl=pt_BR&pli=1'),
+        'color': Colors.blue,
+      },
       { 
         'title': 'Portal do aluno',
         'url': Uri.parse('https://bbsltda149898.rm.cloudtotvs.com.br/FrameHTML/Web/App/Edu/PortalEducacional/login/'),
@@ -163,6 +170,13 @@ class _HomeScreenState extends State<HomeScreen> {
         'url': Uri.parse('https://bbsltda149898.rm.cloudtotvs.com.br/FrameHTML/Web/App/Edu/PortalEducacional/login/'),
         'color': Colors.indigo,
       },
+       {
+        'title': 'Educonnect',
+        'url': Platform.isIOS
+            ? Uri.parse('https://apps.apple.com/br/app/meu-educonnect/id1255287155')
+            : Uri.parse('https://play.google.com/store/apps/details?id=com.educonnect.totvs&hl=pt_BR&pli=1'),
+        'color': Colors.blue,
+      },
     ];
 
     List<Map<String, dynamic>> filterItems(List<Map<String, dynamic>> items) {
@@ -176,30 +190,44 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: AppBar( 
         title: const Text("Bright Links"),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Campo de busca
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: TextField(
-                onChanged: (value) {
-                  setState(() {
-                    searchTerm = value;
-                  });
-                },
-                decoration: InputDecoration(
-                  hintText: "Buscar...",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
+      body: 
+       Stack(
+        children: [
+          // Imagem de fundo
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/background.jpg'), // URL da imagem de fundo
+                fit: BoxFit.cover, // Ajusta a imagem para cobrir toda a tela
+              ),
+            ),
+          ),
+      
+
+        SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Campo de busca
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: TextField(
+                  onChanged: (value) {
+                    setState(() {
+                      searchTerm = value;
+                    });
+                  },
+                  decoration: InputDecoration(
+                    hintText: "Buscar...",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
                   ),
                 ),
               ),
-            ),
 
             const SizedBox(height: 20),
 
@@ -215,7 +243,7 @@ class _HomeScreenState extends State<HomeScreen> {
             CarouselSlider(
               options: CarouselOptions(
                 height: 180,
-                viewportFraction: 0.6, // Mostra uma fração do carrossel
+                viewportFraction: 0.5, // Mostra uma fração do carrossel
                 enlargeCenterPage: true, // Destaca o item central
               ),
               items: filterItems(carouselItems1).map((item) {
@@ -262,7 +290,7 @@ class _HomeScreenState extends State<HomeScreen> {
             CarouselSlider(
               options: CarouselOptions(
                 height: 180,
-                viewportFraction: 0.6, // Mostra uma fração do carrossel
+                viewportFraction: 0.5, // Mostra uma fração do carrossel
                 enlargeCenterPage: true, // Destaca o item central
               ),
               items: filterItems(carouselItems2).map((item) {
@@ -309,7 +337,7 @@ class _HomeScreenState extends State<HomeScreen> {
             CarouselSlider(
               options: CarouselOptions(
                 height: 180,
-                viewportFraction: 0.6, // Mostra uma fração do carrossel
+                viewportFraction: 0.5, // Mostra uma fração do carrossel
                 enlargeCenterPage: true, // Destaca o item central
               ),
               items: filterItems(carouselItems3).map((item) {
@@ -356,7 +384,7 @@ class _HomeScreenState extends State<HomeScreen> {
             CarouselSlider(
               options: CarouselOptions(
                 height: 180,
-                viewportFraction: 0.6, // Mostra uma fração do carrossel
+                viewportFraction: 0.5, // Mostra uma fração do carrossel
                 enlargeCenterPage: true, // Destaca o item central
               ),
               items: filterItems(carouselItems4).map((item) {
@@ -392,6 +420,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-    );
+    ] ) );
   }
 }
