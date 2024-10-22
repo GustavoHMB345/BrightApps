@@ -1,4 +1,4 @@
-import 'package:centralizador/pages/home_screen.dart';
+import 'package:centralizador/pages/login_page.dart'; // Importe a LoginScreen
 import 'package:centralizador/state/app_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: HomeScreen(),
+      home: LoginScreen(), // Começa com a tela de login
     );
   }
 }
