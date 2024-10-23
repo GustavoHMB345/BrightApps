@@ -36,10 +36,10 @@ class _HomeScreenState extends State<HomeScreen> {
         .resolvePlatformSpecificImplementation<
             IOSFlutterLocalNotificationsPlugin>()
         ?.requestPermissions(
-      alert: true,
-      badge: true,
-      sound: true,
-    ).then((value) {
+          alert: true,
+          badge: true,
+          sound: true,
+        ).then((value) {
       if (value == null || !value) {
         _showPermissionDeniedDialog();
       }
@@ -87,46 +87,15 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // Método para exibir o diálogo
-void _launchURLDialog(Uri uri) async {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text("Abrir Link"),
-        content: const Text("Deseja abrir o link no app ou no navegador externo?"),
-        actions: <Widget>[
-          TextButton(
-            child: const Text("Navegador Externo"),
-            onPressed: () async {
-              Navigator.of(context).pop();
-              _openURL(uri, LaunchMode.externalApplication); // Chama o método renomeado
-            },
-          ),
-          TextButton(
-            child: const Text("App"),
-            onPressed: () async {
-              Navigator.of(context).pop();
-              _openURL(uri, LaunchMode.inAppWebView); // Chama o método renomeado
-            },
-          ),
-        ],
-      );
-    },
-  );
-}
-
-// Método para abrir o link com o modo especificado
-Future<void> _openURL(Uri uri, LaunchMode mode) async {
-  try {
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: mode);
+  void _launchURL(Uri uri) async {
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      }
+    } catch (e) {
+      print(e.toString());
     }
-  } catch (e) {
-    print(e.toString());
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -164,7 +133,7 @@ Future<void> _openURL(Uri uri, LaunchMode mode) async {
             ? Uri.parse('https://apps.apple.com/br/app/meu-educonnect/id1255287155')
             : Uri.parse('https://play.google.com/store/apps/details?id=com.educonnect.totvs&hl=pt_BR&pli=1'),
         'color': Colors.blue,
-      },
+      },  
     ];
 
     final List<Map<String, dynamic>> carouselItems3 = [
@@ -175,21 +144,13 @@ Future<void> _openURL(Uri uri, LaunchMode mode) async {
             : Uri.parse('https://play.google.com/store/apps/details?id=com.toddle.teacher'),
         'color': Colors.red,
       },
-      {
-        'title': 'Educonnect',
-        'url': Platform.isIOS
-            ? Uri.parse('https://apps.apple.com/br/app/meu-educonnect/id1255287155')
-            : Uri.parse('https://play.google.com/store/apps/details?id=com.educonnect.totvs&hl=pt_BR&pli=1'),
-        'color': Colors.blue,
-      },
-      {
+      { 
         'title': 'Portal do aluno',
         'url': Uri.parse('https://bbsltda149898.rm.cloudtotvs.com.br/FrameHTML/Web/App/Edu/PortalEducacional/login/'),
         'color': Colors.indigo,
       },
-    ];
 
-    final List<Map<String, dynamic>> carouselItems4 = [
+    ];final List<Map<String, dynamic>> carouselItems4 = [
       {
         'title': 'Toddle',
         'url': Platform.isIOS
@@ -202,249 +163,234 @@ Future<void> _openURL(Uri uri, LaunchMode mode) async {
         'url': Uri.parse('https://bbsltda149898.rm.cloudtotvs.com.br/FrameHTML/Web/App/Edu/PortalEducacional/login/'),
         'color': Colors.indigo,
       },
-      {
-        'title': 'Educonnect',
-        'url': Platform.isIOS
-            ? Uri.parse('https://apps.apple.com/br/app/meu-educonnect/id1255287155')
-            : Uri.parse('https://play.google.com/store/apps/details?id=com.educonnect.totvs&hl=pt_BR&pli=1'),
-        'color': Colors.blue,
-      },
     ];
 
     List<Map<String, dynamic>> filterItems(List<Map<String, dynamic>> items) {
       if (searchTerm.isEmpty) {
         return items;
       }
-      return items.where((item) =>
-          item['title'].toLowerCase().contains(searchTerm.toLowerCase())).toList();
+      return items
+          .where((item) =>
+              item['title'].toLowerCase().contains(searchTerm.toLowerCase()))
+          .toList();
     }
 
     return Scaffold(
       appBar: AppBar(
         title: const Text("Bright Links"),
       ),
-      body: Stack(
-        children: [
-          // Imagem de fundo
-          Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/background.jpg'), // URL da imagem de fundo
-                fit: BoxFit.cover, // Ajusta a imagem para cobrir toda a tela
+      body: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Campo de busca
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: TextField(
+                onChanged: (value) {
+                  setState(() {
+                    searchTerm = value;
+                  });
+                },
+                decoration: InputDecoration(
+                  hintText: "Buscar...",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
               ),
             ),
-          ),
-          SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Center(
-                  child: SizedBox(
-                    width: 300,
-                    child: TextField(
-                      onChanged: (value) {
-                        setState(() {
-                          searchTerm = value;
-                        });
-                      },
-                      style: const TextStyle(fontSize: 20),
-                      decoration: InputDecoration(
-                        hintText: "Buscar...",
-                        hintStyle: const TextStyle(fontSize: 20),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.0),
+
+            const SizedBox(height: 20),
+
+            // Nome acima do carrossel 1
+            const Text(
+              'Infantil',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 10),
+
+            // Carrossel 1
+            CarouselSlider(
+              options: CarouselOptions(
+                height: 180,
+                viewportFraction: 0.6, // Mostra uma fração do carrossel
+                enlargeCenterPage: true, // Destaca o item central
+              ),
+              items: filterItems(carouselItems1).map((item) {
+                return Builder(
+                  builder: (BuildContext context) {
+                    return InkWell(
+                      onTap: () => _launchURL(item['url']),
+                      child: Container(
+                        width: 700, // Modifique o tamanho da largura dos cards
+                        height: 150, // Modifique a altura dos cards
+                        margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                        decoration: BoxDecoration(
+                          color: item['color'],
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Center(
+                          child: Text(
+                            item['title'],
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-
-                // Nome acima do carrossel 1
-                const Text(
-                  'Infantil',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 10),
-
-                // Carrossel 1
-                CarouselSlider(
-                  options: CarouselOptions(
-                    height: 180,
-                    viewportFraction: 0.5, // Mostra uma fração do carrossel
-                    enlargeCenterPage: true, // Destaca o item central
-                  ),
-                  items: filterItems(carouselItems1).map((item) {
-                    return Builder(
-                      builder: (BuildContext context) {
-                        return InkWell(
-                          onTap: () => _launchURLDialog(item['url']),
-                          child: Container(
-                            width: 700, // Modifique o tamanho da largura dos cards
-                            height: 150, // Modifique a altura dos cards
-                            margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                            decoration: BoxDecoration(
-                              color: item['color'],
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Center(
-                              child: Text(
-                                item['title'],
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18.0,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      },
                     );
-                  }).toList(),
-                ),
-
-                const SizedBox(height: 10),
-
-                // Nome acima do carrossel 2
-                const Text(
-                  'Fund 1',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 10),
-
-                // Carrossel 2
-                CarouselSlider(
-                  options: CarouselOptions(
-                    height: 180,
-                    viewportFraction: 0.5,
-                    enlargeCenterPage: true,
-                  ),
-                  items: filterItems(carouselItems2).map((item) {
-                    return Builder(
-                      builder: (BuildContext context) {
-                        return InkWell(
-                          onTap: () => _launchURLDialog(item['url']),
-                          child: Container(
-                            width: 700,
-                            height: 150,
-                            margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                            decoration: BoxDecoration(
-                              color: item['color'],
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Center(
-                              child: Text(
-                                item['title'],
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18.0,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  }).toList(),
-                ),
-
-                const SizedBox(height: 10),
-
-                // Nome acima do carrossel 3
-                const Text(
-                  'Fund 2',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 10),
-
-                // Carrossel 3
-                CarouselSlider(
-                  options: CarouselOptions(
-                    height: 180,
-                    viewportFraction: 0.5,
-                    enlargeCenterPage: true,
-                  ),
-                  items: filterItems(carouselItems3).map((item) {
-                    return Builder(
-                      builder: (BuildContext context) {
-                        return InkWell(
-                          onTap: () => _launchURLDialog(item['url']),
-                          child: Container(
-                            width: 500,
-                            height: 150,
-                            margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                            decoration: BoxDecoration(
-                              color: item['color'],
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Center(
-                              child: Text(
-                                item['title'],
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18.0,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  }).toList(),  
-                ),
-
-                const SizedBox(height: 10),
-
-                // Nome acima do carrossel 4
-                const Text('Ensino médio',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 10),
-
-                // Carrossel 4
-                CarouselSlider(
-                  options: CarouselOptions(
-                    height: 180,
-                    viewportFraction: 0.5,
-                    enlargeCenterPage: true,
-                  ),
-                  items: filterItems(carouselItems4).map((item) {
-                    return Builder(
-                      builder: (BuildContext context) {
-                        return InkWell(
-                          onTap: () => _launchURLDialog(item['url']),
-                          child: Container(
-                            width: 700,
-                            height: 150,
-                            margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                            decoration: BoxDecoration(
-                              color: item['color'],
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Center(
-                              child: Text(
-                                item['title'],
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18.0,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 20),
-              ],
+                  },
+                );
+              }).toList(),
             ),
-          ),
-        ],
+
+            const SizedBox(height: 20),
+
+            // Nome acima do carrossel 2
+            const Text(
+              'Fundamental 1',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 10),
+
+            // Carrossel 2
+            CarouselSlider(
+              options: CarouselOptions(
+                height: 180,
+                viewportFraction: 0.6, // Mostra uma fração do carrossel
+                enlargeCenterPage: true, // Destaca o item central
+              ),
+              items: filterItems(carouselItems2).map((item) {
+                return Builder(
+                  builder: (BuildContext context) {
+                    return InkWell(
+                      onTap: () => _launchURL(item['url']),
+                      child: Container(
+                        width: 700,
+                        height: 150,
+                        margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                        decoration: BoxDecoration(
+                          color: item['color'],
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Center(
+                          child: Text(
+                            item['title'],
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              }).toList(),
+            ),
+
+            const SizedBox(height: 20),
+
+            // Nome acima do carrossel 3
+            const Text(
+              'Fundamental 2',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 10),
+
+            // Carrossel 3
+            CarouselSlider(
+              options: CarouselOptions(
+                height: 180,
+                viewportFraction: 0.6, // Mostra uma fração do carrossel
+                enlargeCenterPage: true, // Destaca o item central
+              ),
+              items: filterItems(carouselItems3).map((item) {
+                return Builder(
+                  builder: (BuildContext context) {
+                    return InkWell(
+                      onTap: () => _launchURL(item['url']),
+                      child: Container(
+                        width: 700,
+                        height: 150,
+                        margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                        decoration: BoxDecoration(
+                          color: item['color'],
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Center(
+                          child: Text(
+                            item['title'],
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              }).toList(),
+            ),
+
+            const SizedBox(height: 20),
+            
+             // Nome acima do carrossel 2
+            const Text(
+              'Ensino médio',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 10),
+
+            // Carrossel 4
+            CarouselSlider(
+              options: CarouselOptions(
+                height: 180,
+                viewportFraction: 0.6, // Mostra uma fração do carrossel
+                enlargeCenterPage: true, // Destaca o item central
+              ),
+              items: filterItems(carouselItems4).map((item) {
+                return Builder(
+                  builder: (BuildContext context) {
+                    return InkWell(
+                      onTap: () => _launchURL(item['url']),
+                      child: Container(
+                        width: 700,
+                        height: 150,
+                        margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                        decoration: BoxDecoration(
+                          color: item['color'],
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Center(
+                          child: Text(
+                            item['title'],
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              }).toList(),
+            ),
+ // Espaço final após o último carrossel
+          ],
+        ),
       ),
     );
   }
