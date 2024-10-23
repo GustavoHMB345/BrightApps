@@ -223,13 +223,53 @@ Future<void> _openURL(Uri uri, LaunchMode mode) async {
       appBar: AppBar(
         title: const Text("Bright Links"),
       ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            const DrawerHeader(decoration: BoxDecoration(
+              color: Colors.blue,
+            ),
+            child: Text(
+              'Menu',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+              ),
+            ),),
+            ListTile(
+              leading: const Icon(Icons.home),
+              title: const Text('Home'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+             ListTile(
+          leading: const Icon(Icons.settings),
+          title: const Text('Configurações'),
+          onTap: () {
+            Navigator.pop(context);
+            // Ação de navegação ou lógica aqui
+          },
+            ),
+             ListTile(
+          leading: const Icon(Icons.exit_to_app),
+          title: const Text('Sair'),
+          onTap: () {
+            Navigator.pop(context); 
+            },
+            ),
+            // Lógica de logout ou navegação
+          ],
+        ),
+      ),
       body: Stack(
         children: [
           // Imagem de fundo
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/background.jpg'), // URL da imagem de fundo
+                image: AssetImage('assets/images/background.png'), // URL da imagem de fundo
                 fit: BoxFit.cover, // Ajusta a imagem para cobrir toda a tela
               ),
             ),
@@ -240,7 +280,7 @@ Future<void> _openURL(Uri uri, LaunchMode mode) async {
               children: [
                 Center(
                   child: SizedBox(
-                    width: 300,
+                    width: 600,
                     child: TextField(
                       onChanged: (value) {
                         setState(() {
@@ -271,7 +311,7 @@ Future<void> _openURL(Uri uri, LaunchMode mode) async {
                 CarouselSlider(
                   options: CarouselOptions(
                     height: 180,
-                    viewportFraction: 0.5, // Mostra uma fração do carrossel
+                    viewportFraction: 0.6, // Mostra uma fração do carrossel
                     enlargeCenterPage: true, // Destaca o item central
                   ),
                   items: filterItems(carouselItems1).map((item) {
@@ -285,7 +325,7 @@ Future<void> _openURL(Uri uri, LaunchMode mode) async {
                             margin: const EdgeInsets.symmetric(horizontal: 5.0),
                             decoration: BoxDecoration(
                               color: item['color'],
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(20),
                             ),
                             child: Center(
                               child: Text(
@@ -317,7 +357,7 @@ Future<void> _openURL(Uri uri, LaunchMode mode) async {
                 CarouselSlider(
                   options: CarouselOptions(
                     height: 180,
-                    viewportFraction: 0.5,
+                    viewportFraction: 0.6,
                     enlargeCenterPage: true,
                   ),
                   items: filterItems(carouselItems2).map((item) {
@@ -331,7 +371,7 @@ Future<void> _openURL(Uri uri, LaunchMode mode) async {
                             margin: const EdgeInsets.symmetric(horizontal: 5.0),
                             decoration: BoxDecoration(
                               color: item['color'],
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(20),
                             ),
                             child: Center(
                               child: Text(
@@ -363,7 +403,7 @@ Future<void> _openURL(Uri uri, LaunchMode mode) async {
                 CarouselSlider(
                   options: CarouselOptions(
                     height: 180,
-                    viewportFraction: 0.5,
+                    viewportFraction: 0.6,
                     enlargeCenterPage: true,
                   ),
                   items: filterItems(carouselItems3).map((item) {
@@ -372,12 +412,12 @@ Future<void> _openURL(Uri uri, LaunchMode mode) async {
                         return InkWell(
                           onTap: () => _launchURLDialog(item['url']),
                           child: Container(
-                            width: 500,
+                            width: 700,
                             height: 150,
                             margin: const EdgeInsets.symmetric(horizontal: 5.0),
                             decoration: BoxDecoration(
                               color: item['color'],
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(20),
                             ),
                             child: Center(
                               child: Text(
@@ -408,7 +448,7 @@ Future<void> _openURL(Uri uri, LaunchMode mode) async {
                 CarouselSlider(
                   options: CarouselOptions(
                     height: 180,
-                    viewportFraction: 0.5,
+                    viewportFraction: 0.6,
                     enlargeCenterPage: true,
                   ),
                   items: filterItems(carouselItems4).map((item) {
@@ -422,7 +462,7 @@ Future<void> _openURL(Uri uri, LaunchMode mode) async {
                             margin: const EdgeInsets.symmetric(horizontal: 5.0),
                             decoration: BoxDecoration(
                               color: item['color'],
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(20),
                             ),
                             child: Center(
                               child: Text(
