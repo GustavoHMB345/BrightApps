@@ -1,4 +1,6 @@
+import 'package:centralizador/state/app_state.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'dart:io' show Platform;
@@ -144,6 +146,7 @@ void _confirmLogout() {
           child:const Text("Sair") ,
           onPressed: () {
             Navigator.of(context).pop();
+            Provider.of<AppState>(context, listen: false).updateStatus('Offline');
             Navigator.pushReplacementNamed(context, '/');
           },
           ),
@@ -156,6 +159,7 @@ void _confirmLogout() {
 
   @override
   Widget build(BuildContext context) {
+    final userStatus = Provider.of<AppState>(context).status;
     final List<Map<String, dynamic>> carouselItems1 = [
       {
         'title': 'Portal do aluno',
@@ -248,6 +252,16 @@ void _confirmLogout() {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Bright Links"),
+        actions: [
+          Padding(padding: const EdgeInsets.only(right: 16.0 ),
+          child: Center(
+            child: Text(
+              userStatus,
+              style: const TextStyle(color: Colors.white),
+            ),
+          ),
+          ),
+        ],
       ),
       drawer: Drawer(
         child: ListView(
