@@ -127,6 +127,32 @@ Future<void> _openURL(Uri uri, LaunchMode mode) async {
   }
 }
 
+void _confirmLogout() {
+  showDialog(context: context,
+  builder: (BuildContext context) {
+    return AlertDialog(
+      title: const Text("Confirmação de de Logout"),
+      content: const Text("Você tem certeza que deseja sair?"),
+      actions: <Widget>[
+        TextButton(
+          child: const Text("Cancelar"),
+          onPressed:() {
+            Navigator.of(context).pop();
+          },
+        ),
+        TextButton(
+          child:const Text("Sair") ,
+          onPressed: () {
+            Navigator.of(context).pop();
+            Navigator.pushReplacementNamed(context, '/');
+          },
+          ),
+      ],
+    );
+  },
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -256,7 +282,8 @@ Future<void> _openURL(Uri uri, LaunchMode mode) async {
           leading: const Icon(Icons.exit_to_app),
           title: const Text('Sair'),
           onTap: () {
-            Navigator.pop(context); 
+            Navigator.pop(context);
+            _confirmLogout();
             },
             ),
             // Lógica de logout ou navegação
@@ -269,7 +296,7 @@ Future<void> _openURL(Uri uri, LaunchMode mode) async {
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/images/background.png'), // URL da imagem de fundo
+                image: AssetImage('assets/images/background.png'), 
                 fit: BoxFit.cover, // Ajusta a imagem para cobrir toda a tela
               ),
             ),

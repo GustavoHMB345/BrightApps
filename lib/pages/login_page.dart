@@ -56,7 +56,7 @@ class LoginScreen extends StatelessWidget {
           ),
           // FlutterLogin widget sobreposto na imagem
           FlutterLogin(
-            logo: const AssetImage('assets/Marca_Bright_bee.png'),
+            logo: const AssetImage('assets/images/Marca_Bright_bee.png'),
              theme: LoginTheme(
               // Defina as cores das páginas como transparentes para não sobrepor a imagem
               pageColorLight: Colors.transparent,
