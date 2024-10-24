@@ -55,43 +55,48 @@ class LoginScreen extends StatelessWidget {
             'assets/images/fundo_papel_amassado.png',
             fit: BoxFit.cover,
           ),
-          Center( // Usar Center para centralizar o conteúdo
+          SizedBox(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center, // Centraliza verticalmente
               children: [
+                // Adicionar espaço no topo para centralizar o FlutterLogin
+                const SizedBox(height: 10),
+                
                 // A logo está fora do FlutterLogin, permitindo ajustar a largura
                 SizedBox(
-                  width: screenWidth * 0.3, // 30% da largura da tela
+                  width: screenWidth * 0.3, // 60% da largura da tela
                   child: Image.asset(
                     'assets/images/Marca_Bright_bee.png',
                     fit: BoxFit.contain,
                   ),
                 ),
+                
                 // Widget FlutterLogin abaixo da logo
-                FlutterLogin(
-                  theme: LoginTheme(
-                    pageColorLight: Colors.transparent,
-                    pageColorDark: Colors.transparent,
+                Expanded(
+                  child: FlutterLogin(
+                    theme: LoginTheme(
+                      pageColorLight: Colors.transparent,
+                      pageColorDark: Colors.transparent,
+                    ),
+                    messages: LoginMessages(
+                      userHint: 'Digite seu nome de usuário',
+                      passwordHint: 'Digite sua senha',
+                      loginButton: 'Entrar',
+                      signupButton: 'Registrar-se',
+                      recoverPasswordButton: 'Enviar',
+                      forgotPasswordButton: 'Recuperar sua senha?',
+                      recoverPasswordDescription:
+                          'Por favor, insira seu email para que possamos enviar token de mudança de senha',
+                      recoverCodePasswordDescription: 'Enviar',
+                    ),
+                    onLogin: (data) => _authUser(data, context),
+                    onSignup: _signupUser,
+                    onSubmitAnimationCompleted: () {
+                      Navigator.of(context).pushReplacement(MaterialPageRoute(
+                        builder: (context) => const HomeScreen(),
+                      ));
+                    },
+                    onRecoverPassword: (name) => _esqueciasenha(name, context),
                   ),
-                  messages: LoginMessages(
-                    userHint: 'Digite seu nome de usuário',
-                    passwordHint: 'Digite sua senha',
-                    loginButton: 'Entrar',
-                    signupButton: 'Registrar-se',
-                    recoverPasswordButton: 'Enviar',
-                    forgotPasswordButton: 'Recuperar sua senha?',
-                    recoverPasswordDescription:
-                        'Por favor, insira seu email para que possamos enviar token de mudança de senha',
-                    recoverCodePasswordDescription: 'Enviar',
-                  ),
-                  onLogin: (data) => _authUser(data, context),
-                  onSignup: _signupUser,
-                  onSubmitAnimationCompleted: () {
-                    Navigator.of(context).pushReplacement(MaterialPageRoute(
-                      builder: (context) => const HomeScreen(),
-                    ));
-                  },
-                  onRecoverPassword: (name) => _esqueciasenha(name, context),
                 ),
               ],
             ),
