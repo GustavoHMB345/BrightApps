@@ -268,12 +268,12 @@ void _confirmLogout() {
           padding: EdgeInsets.zero,
           children: <Widget>[
             const DrawerHeader(decoration: BoxDecoration(
-              color: Colors.blue,
+              color: Colors.yellow,
             ),
             child: Text(
-              'Menu',
+              'BrightLinks',
               style: TextStyle(
-                color: Colors.white,
+                color: Colors.black,
                 fontSize: 24,
               ),
             ),),
@@ -283,14 +283,6 @@ void _confirmLogout() {
               onTap: () {
                 Navigator.pop(context);
               },
-            ),
-             ListTile(
-          leading: const Icon(Icons.settings),
-          title: const Text('Configurações'),
-          onTap: () {
-            Navigator.pop(context);
-            // Ação de navegação ou lógica aqui
-          },
             ),
              ListTile(
           leading: const Icon(Icons.exit_to_app),

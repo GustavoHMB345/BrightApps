@@ -7,10 +7,10 @@ import 'package:provider/provider.dart';
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
-  Duration get loginTime => const Duration(milliseconds: 2250);
+  Duration get loginTime => const Duration(milliseconds: 1250);
 
   Future<String?> _authUser(LoginData data, BuildContext context) async {
-    debugPrint('Name: ${data.name}, Password: ${data.password}');
+    debugPrint('Nome: ${data.name}, Senha: ${data.password}');
     final appState = Provider.of<AppState>(context, listen: false);
 
     return Future.delayed(loginTime).then((_) {
@@ -24,17 +24,17 @@ class LoginScreen extends StatelessWidget {
   }
 
   Future<String?> _signupUser(SignupData data) {
-    debugPrint('Signup Name: ${data.name}, Password: ${data.password}');
+    debugPrint('Cadastrar: ${data.name}, Senha: ${data.password}');
     return Future.delayed(loginTime).then((_) {
       return null; // Retorna null para indicar sucesso no cadastro
     });
   }
 
-  Future<String> _recoverPassword(String name, BuildContext context) async { // Adicionado 'context' como parâmetro
+  Future<String> _esqueciasenha(String name, BuildContext context) async {
     debugPrint('Name: $name');
     final appState = Provider.of<AppState>(context, listen: false);
     return Future.delayed(loginTime).then((_) {
-      if (!appState.users.containsKey(name)) { // Usando a referência correta
+      if (!appState.users.containsKey(name)) {
         return 'Usuário não existe';
       }
       return '';
@@ -43,6 +43,8 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Stack(
@@ -53,22 +55,46 @@ class LoginScreen extends StatelessWidget {
             'assets/images/fundo_papel_amassado.png',
             fit: BoxFit.cover,
           ),
-          // FlutterLogin widget sobreposto na imagem
-          FlutterLogin(
-            logo: const AssetImage('assets/images/Marca_Bright_bee.png'),
-            theme: LoginTheme(
-              // Defina as cores das páginas como transparentes para não sobrepor a imagem
-              pageColorLight: Colors.transparent,
-              pageColorDark: Colors.transparent,
+          Center( // Usar Center para centralizar o conteúdo
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center, // Centraliza verticalmente
+              children: [
+                // A logo está fora do FlutterLogin, permitindo ajustar a largura
+                SizedBox(
+                  width: screenWidth * 0.3, // 30% da largura da tela
+                  child: Image.asset(
+                    'assets/images/Marca_Bright_bee.png',
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                // Widget FlutterLogin abaixo da logo
+                FlutterLogin(
+                  theme: LoginTheme(
+                    pageColorLight: Colors.transparent,
+                    pageColorDark: Colors.transparent,
+                  ),
+                  messages: LoginMessages(
+                    userHint: 'Digite seu nome de usuário',
+                    passwordHint: 'Digite sua senha',
+                    loginButton: 'Entrar',
+                    signupButton: 'Registrar-se',
+                    recoverPasswordButton: 'Enviar',
+                    forgotPasswordButton: 'Recuperar sua senha?',
+                    recoverPasswordDescription:
+                        'Por favor, insira seu email para que possamos enviar token de mudança de senha',
+                    recoverCodePasswordDescription: 'Enviar',
+                  ),
+                  onLogin: (data) => _authUser(data, context),
+                  onSignup: _signupUser,
+                  onSubmitAnimationCompleted: () {
+                    Navigator.of(context).pushReplacement(MaterialPageRoute(
+                      builder: (context) => const HomeScreen(),
+                    ));
+                  },
+                  onRecoverPassword: (name) => _esqueciasenha(name, context),
+                ),
+              ],
             ),
-            onLogin: (data) => _authUser(data, context), // Passa o contexto para o método de autenticação
-            onSignup: _signupUser,
-            onSubmitAnimationCompleted: () {
-              Navigator.of(context).pushReplacement(MaterialPageRoute(
-                builder: (context) => const HomeScreen(),
-              ));
-            },
-            onRecoverPassword: (name) => _recoverPassword(name, context), // Passa o contexto aqui também
           ),
         ],
       ),
