@@ -481,7 +481,7 @@ void _confirmLogout() {
                 CarouselSlider(
                   options: CarouselOptions(
                     height: 180,
-                    viewportFraction: 0.6,
+                    viewportFraction: 0.6,  
                     enlargeCenterPage: true,
                   ),
                   items: filterItems(carouselItems4).map((item) {
