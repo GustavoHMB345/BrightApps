@@ -1,63 +1,95 @@
 import 'package:centralizador/pages/home_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_login/flutter_login.dart';
+import 'package:centralizador/state/app_state.dart';
+import 'package:provider/provider.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
-  @override
-  LoginScreenState createState() => LoginScreenState();
-}
+  Duration get loginTime => const Duration(milliseconds: 2250);
 
-class LoginScreenState extends State<LoginScreen> {
-  final _usernameController = TextEditingController();
-  final _passwordController = TextEditingController();
+  Future<String?> _authUser(LoginData data, BuildContext context) async {
+    final appState = Provider.of<AppState>(context, listen: false);
 
-  void _login() {
-    String username = _usernameController.text;
-    String password = _passwordController.text;
+    return Future.delayed(loginTime).then((_) {
+      if (!appState.validateUser(data.name, data.password)) {
+        return 'Usuário não existe ou a senha está incorreta';
+      }
 
-    // Aqui você pode adicionar a lógica de autenticação
-    // Exemplo: Validar usuário e senha
-    if (username == 'adm' && password == '1212') {
-      // Se o login for bem-sucedido, navegue para a HomeScreen
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-      );
-    } else {
-      // Falha no login
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Usuário ou senha inválidos!'),
-      ));
-    }
+      appState.updateStatus('online');
+      return null;
+    });
+  }
+
+  Future<String?> _signupUser(SignupData data) {
+    return Future.delayed(loginTime).then((_) {
+      return null;
+    });
+  }
+
+  Future<String> _recoverPassword(String name, BuildContext context) async {
+    final appState = Provider.of<AppState>(context, listen: false);
+    return Future.delayed(loginTime).then((_) {
+      if (!appState.users.containsKey(name)) {
+        return 'Usuário não existe';
+      }
+      return '';
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Tela de Login'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(
-              controller: _usernameController,
-              decoration: const InputDecoration(labelText: 'Usuário'),
+      backgroundColor: Colors.transparent,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset(
+            'assets/images/fundo_papel_amassado.png',
+            fit: BoxFit.cover,
+          ),
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: screenWidth * 0.5,
+                  height: screenHeight * 0.4,
+                  child: Image.asset(
+                    'assets/images/Marca_Bright_bee.png',
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Flexible(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: screenWidth * 0.8,  
+                    ),
+                    child: FlutterLogin(
+                      theme: LoginTheme(
+                        pageColorLight: Colors.transparent,
+                        pageColorDark: Colors.transparent,
+                      ),
+                      onLogin: (data) => _authUser(data, context),
+                      onSignup: _signupUser,
+                      onSubmitAnimationCompleted: () {
+                        Navigator.of(context).pushReplacement(MaterialPageRoute(
+                          builder: (context) => const HomeScreen(),
+                        ));
+                      },
+                      onRecoverPassword: (name) => _recoverPassword(name, context),
+                    ),
+                  ),
+                ),
+              ],
             ),
-            TextField(
-              controller: _passwordController,
-              decoration: const InputDecoration(labelText: 'Senha'),
-              obscureText: true,
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _login,
-              child: const Text('Login'),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
