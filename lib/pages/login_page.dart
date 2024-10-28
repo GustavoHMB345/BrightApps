@@ -7,10 +7,9 @@ import 'package:provider/provider.dart';
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
-  Duration get loginTime => const Duration(milliseconds: 1250);
+  Duration get loginTime => const Duration(milliseconds: 2250);
 
   Future<String?> _authUser(LoginData data, BuildContext context) async {
-    debugPrint('Nome: ${data.name}, Senha: ${data.password}');
     final appState = Provider.of<AppState>(context, listen: false);
 
     return Future.delayed(loginTime).then((_) {
@@ -19,19 +18,17 @@ class LoginScreen extends StatelessWidget {
       }
 
       appState.updateStatus('online');
-      return null; // Retorna null para indicar sucesso no login
+      return null;
     });
   }
 
   Future<String?> _signupUser(SignupData data) {
-    debugPrint('Cadastrar: ${data.name}, Senha: ${data.password}');
     return Future.delayed(loginTime).then((_) {
-      return null; // Retorna null para indicar sucesso no cadastro
+      return null;
     });
   }
 
-  Future<String> _esqueciasenha(String name, BuildContext context) async {
-    debugPrint('Name: $name');
+  Future<String> _recoverPassword(String name, BuildContext context) async {
     final appState = Provider.of<AppState>(context, listen: false);
     return Future.delayed(loginTime).then((_) {
       if (!appState.users.containsKey(name)) {
@@ -44,58 +41,49 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
+    final double screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // Imagem de fundo
           Image.asset(
             'assets/images/fundo_papel_amassado.png',
             fit: BoxFit.cover,
           ),
-          SizedBox(
+          Center(
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Adicionar espaço no topo para centralizar o FlutterLogin
-                const SizedBox(height: 10),
-                
-                // A logo está fora do FlutterLogin, permitindo ajustar a largura
                 SizedBox(
-                  width: screenWidth * 0.3, // 60% da largura da tela
+                  width: screenWidth * 0.5,
+                  height: screenHeight * 0.4,
                   child: Image.asset(
                     'assets/images/Marca_Bright_bee.png',
                     fit: BoxFit.contain,
                   ),
                 ),
-                
-                // Widget FlutterLogin abaixo da logo
-                Expanded(
-                  child: FlutterLogin(
-                    theme: LoginTheme(
-                      pageColorLight: Colors.transparent,
-                      pageColorDark: Colors.transparent,
+                const SizedBox(height: 10),
+                Flexible(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: screenWidth * 0.8,  
                     ),
-                    messages: LoginMessages(
-                      userHint: 'Digite seu nome de usuário',
-                      passwordHint: 'Digite sua senha',
-                      loginButton: 'Entrar',
-                      signupButton: 'Registrar-se',
-                      recoverPasswordButton: 'Enviar',
-                      forgotPasswordButton: 'Recuperar sua senha?',
-                      recoverPasswordDescription:
-                          'Por favor, insira seu email para que possamos enviar token de mudança de senha',
-                      recoverCodePasswordDescription: 'Enviar',
+                    child: FlutterLogin(
+                      theme: LoginTheme(
+                        pageColorLight: Colors.transparent,
+                        pageColorDark: Colors.transparent,
+                      ),
+                      onLogin: (data) => _authUser(data, context),
+                      onSignup: _signupUser,
+                      onSubmitAnimationCompleted: () {
+                        Navigator.of(context).pushReplacement(MaterialPageRoute(
+                          builder: (context) => const HomeScreen(),
+                        ));
+                      },
+                      onRecoverPassword: (name) => _recoverPassword(name, context),
                     ),
-                    onLogin: (data) => _authUser(data, context),
-                    onSignup: _signupUser,
-                    onSubmitAnimationCompleted: () {
-                      Navigator.of(context).pushReplacement(MaterialPageRoute(
-                        builder: (context) => const HomeScreen(),
-                      ));
-                    },
-                    onRecoverPassword: (name) => _esqueciasenha(name, context),
                   ),
                 ),
               ],
