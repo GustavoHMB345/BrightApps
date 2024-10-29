@@ -11,12 +11,10 @@ class LoginScreen extends StatelessWidget {
 
   Future<String?> _authUser(LoginData data, BuildContext context) async {
     final appState = Provider.of<AppState>(context, listen: false);
-
     return Future.delayed(loginTime).then((_) {
       if (!appState.validateUser(data.name, data.password)) {
         return 'Usuário não existe ou a senha está incorreta';
       }
-
       appState.updateStatus('online');
       return null;
     });
@@ -38,59 +36,38 @@ class LoginScreen extends StatelessWidget {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final double screenWidth = MediaQuery.of(context).size.width;
-    final double screenHeight = MediaQuery.of(context).size.height;
-
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          Image.asset(
-            'assets/images/fundo_papel_amassado.png',
-            fit: BoxFit.cover,
-          ),
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(
-                  width: screenWidth * 0.5,
-                  height: screenHeight * 0.4,
-                  child: Image.asset(
-                    'assets/images/Marca_Bright_bee.png',
-                    fit: BoxFit.contain,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Flexible(
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxWidth: screenWidth * 0.8,  
-                    ),
-                    child: FlutterLogin(
-                      theme: LoginTheme(
-                        pageColorLight: Colors.transparent,
-                        pageColorDark: Colors.transparent,
-                      ),
-                      onLogin: (data) => _authUser(data, context),
-                      onSignup: _signupUser,
-                      onSubmitAnimationCompleted: () {
-                        Navigator.of(context).pushReplacement(MaterialPageRoute(
-                          builder: (context) => const HomeScreen(),
-                        ));
-                      },
-                      onRecoverPassword: (name) => _recoverPassword(name, context),
-                    ),
-                  ),
-                ),
-              ],
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    body: Stack(
+      fit: StackFit.expand,
+      children: [
+        Image.asset(
+          'assets/images/fundo_papel_amassado.png',
+          fit: BoxFit.cover,
+        ),
+        Center(
+          child: FlutterLogin(
+            logo: 'assets/images/Marca_Bright_bee.png', // Usando o caminho da imagem como string
+            onLogin: (data) => _authUser(data, context),
+            onSignup: _signupUser,
+            onSubmitAnimationCompleted: () {
+              Navigator.of(context).pushReplacement(MaterialPageRoute(
+                builder: (context) => const HomeScreen(),
+              ));
+            },
+            onRecoverPassword: (name) => _recoverPassword(name, context),
+            theme: LoginTheme(
+              pageColorLight: Colors.transparent,
+              pageColorDark: Colors.transparent,
+              logoWidth: 500, // Ajusta o tamanho da logo diretamente no tema
             ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
+
+
 }
