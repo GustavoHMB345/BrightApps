@@ -20,12 +20,6 @@ class LoginScreen extends StatelessWidget {
     });
   }
 
-  Future<String?> _signupUser(SignupData data) {
-    return Future.delayed(loginTime).then((_) {
-      return null;
-    });
-  }
-
   Future<String> _recoverPassword(String name, BuildContext context) async {
     final appState = Provider.of<AppState>(context, listen: false);
     return Future.delayed(loginTime).then((_) {
@@ -36,10 +30,9 @@ class LoginScreen extends StatelessWidget {
     });
   }
 
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    body: Stack(
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
       fit: StackFit.expand,
       children: [
         Image.asset(
@@ -48,9 +41,15 @@ Widget build(BuildContext context) {
         ),
         Center(
           child: FlutterLogin(
-            logo: 'assets/images/Marca_Bright_bee.png', // Usando o caminho da imagem como string
+            logo: 'assets/images/Marca_Bright_bee.png',
             onLogin: (data) => _authUser(data, context),
-            onSignup: _signupUser,
+            onSignup: (data) {
+              // Redireciona para a HomeScreen sem fazer a validação de signup
+              Navigator.of(context).pushReplacement(MaterialPageRoute(
+                builder: (context) => const HomeScreen(),
+              ));
+              return null; // Para evitar mensagens de erro
+            },
             onSubmitAnimationCompleted: () {
               Navigator.of(context).pushReplacement(MaterialPageRoute(
                 builder: (context) => const HomeScreen(),
@@ -60,14 +59,24 @@ Widget build(BuildContext context) {
             theme: LoginTheme(
               pageColorLight: Colors.transparent,
               pageColorDark: Colors.transparent,
-              logoWidth: 500, // Ajusta o tamanho da logo diretamente no tema
             ),
+            messages: LoginMessages(
+              userHint: 'Usuário',
+              passwordHint: 'Senha',
+              confirmPasswordHint: 'Confirmação',
+              loginButton: 'LOG IN',
+              signupButton: 'Entrar como convidado',
+              forgotPasswordButton: '',
+              recoverPasswordButton: 'AJUDA',
+              goBackButton: 'VOLTAR',
+              confirmPasswordError: 'Não coincide!',
+              recoverPasswordDescription: '',
+              recoverPasswordSuccess: 'Senha recuperada com sucesso',
+            ),
+            hideForgotPasswordButton: true,
           ),
         ),
       ],
-    ),
-  );
-}
-
-
+    );
+  }
 }
