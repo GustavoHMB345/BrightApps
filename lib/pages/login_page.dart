@@ -1,38 +1,71 @@
 import 'package:centralizador/pages/home_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_login/flutter_login.dart';
 import 'package:centralizador/state/app_state.dart';
 import 'package:provider/provider.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
-  Duration get loginTime => const Duration(milliseconds: 2250);
+  @override
+  LoginScreenState createState() => LoginScreenState();
+}
 
-  Future<String?> _authUser(LoginData data, BuildContext context) async {
-    final appState = Provider.of<AppState>(context, listen: false);
-    return Future.delayed(loginTime).then((_) {
-      if (!appState.validateUser(data.name, data.password)) {
-        return 'Usuário não existe ou a senha está incorreta';
-      }
-      appState.updateStatus('online');
-      return null;
-    });
+class LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin {
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  late AnimationController _animationController;
+  late Animation<double> _opacityAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Configurando animações
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 1200),
+      vsync: this,
+    );
+    _opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
+    );
+
+    _animationController.forward();
   }
 
-  Future<String> _recoverPassword(String name, BuildContext context) async {
+  Future<void> _authUser() async {
     final appState = Provider.of<AppState>(context, listen: false);
-    return Future.delayed(loginTime).then((_) {
-      if (!appState.users.containsKey(name)) {
-        return 'Usuário não existe';
-      }
-      return '';
-    });
+    await Future.delayed(const Duration(milliseconds: 2250)); // Simula o tempo de resposta
+    final isValid = appState.validateUser(_usernameController.text, _passwordController.text);
+
+    if (!mounted) return; // Garante que o widget ainda esteja na árvore
+
+    if (isValid) {
+      appState.updateStatus('online');
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const HomeScreen()));
+    } else {
+      _showMessage('Usuário não existe ou a senha está incorreta');
+    }
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Stack(
+  void dispose() {
+    _animationController.dispose();
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+@override
+Widget build(BuildContext context) {
+  // Obtendo a largura da tela
+  final screenWidth = MediaQuery.of(context).size.width;
+
+  return Scaffold(
+    body: Stack(
       fit: StackFit.expand,
       children: [
         Image.asset(
@@ -40,43 +73,77 @@ class LoginScreen extends StatelessWidget {
           fit: BoxFit.cover,
         ),
         Center(
-          child: FlutterLogin(
-            logo: 'assets/images/Marca_Bright_bee.png',
-            onLogin: (data) => _authUser(data, context),
-            onSignup: (data) {
-              // Redireciona para a HomeScreen sem fazer a validação de signup
-              Navigator.of(context).pushReplacement(MaterialPageRoute(
-                builder: (context) => const HomeScreen(),
-              ));
-              return null; // Para evitar mensagens de erro
-            },
-            onSubmitAnimationCompleted: () {
-              Navigator.of(context).pushReplacement(MaterialPageRoute(
-                builder: (context) => const HomeScreen(),
-              ));
-            },
-            onRecoverPassword: (name) => _recoverPassword(name, context),
-            theme: LoginTheme(
-              pageColorLight: Colors.transparent,
-              pageColorDark: Colors.transparent,
+          child: FadeTransition(
+            opacity: _opacityAnimation,
+            child: SingleChildScrollView(
+              child: Container(
+                width: screenWidth * 0.2, // Ajustando a largura do Container
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.9),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 10,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Colocando o fundo correto acima da barra de usuário
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 20),
+                      child: Image.asset(
+                        'assets/images/fundo_correto.png',
+                        width: double.infinity, // Fazendo com que a imagem se ajuste à largura do Container
+                        height: 100,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                    TextField(
+                      controller: _usernameController,
+                      decoration: InputDecoration(
+                        labelText: 'Usuário',
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    TextField(
+                      controller: _passwordController,
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        labelText: 'Senha',
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: _authUser,
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      child: const Text('Entrar'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pushReplacement(MaterialPageRoute(
+                          builder: (context) => const HomeScreen(),
+                        ));
+                      },
+                      child: const Text('Entrar como convidado', style: TextStyle(color: Colors.blue)),
+                    ),
+                  ],
+                ),
+              ),
             ),
-            messages: LoginMessages(
-              userHint: 'Usuário',
-              passwordHint: 'Senha',
-              confirmPasswordHint: 'Confirmação',
-              loginButton: 'LOG IN',
-              signupButton: 'Entrar como convidado',
-              forgotPasswordButton: '',
-              recoverPasswordButton: 'AJUDA',
-              goBackButton: 'VOLTAR',
-              confirmPasswordError: 'Não coincide!',
-              recoverPasswordDescription: '',
-              recoverPasswordSuccess: 'Senha recuperada com sucesso',
-            ),
-            hideForgotPasswordButton: true,
           ),
         ),
       ],
-    );
-  }
+    ),
+  );
+}
 }
