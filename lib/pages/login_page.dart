@@ -19,8 +19,6 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
   @override
   void initState() {
     super.initState();
-
-    // Configurando animações
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 1200),
       vsync: this,
@@ -28,7 +26,6 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
     _opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
     );
-
     _animationController.forward();
   }
 
@@ -59,82 +56,57 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
     super.dispose();
   }
 
-@override
+ @override
 Widget build(BuildContext context) {
-  // Obtendo a largura da tela
-  final screenWidth = MediaQuery.of(context).size.width;
-
   return Scaffold(
     body: Stack(
       fit: StackFit.expand,
       children: [
-        Image.asset(
-          'assets/images/fundo_papel_amassado.png',
-          fit: BoxFit.cover,
-        ),
+        Image.asset('assets/images/fundo_papel_amassado.png', fit: BoxFit.cover),
         Center(
           child: FadeTransition(
             opacity: _opacityAnimation,
             child: SingleChildScrollView(
               child: Container(
-                width: screenWidth * 0.2, // Ajustando a largura do Container
+                width: 400, // Definindo uma largura fixa
+                height: 400, // Definindo uma altura fixa
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.9),
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 10,
-                      offset: Offset(0, 4),
-                    ),
+                    BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4)),
                   ],
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Colocando o fundo correto acima da barra de usuário
-                    Container(
-                      margin: const EdgeInsets.only(bottom: 20),
-                      child: Image.asset(
-                        'assets/images/fundo_correto.png',
-                        width: double.infinity, // Fazendo com que a imagem se ajuste à largura do Container
-                        height: 100,
-                        fit: BoxFit.contain,
-                      ),
+                    Image.asset(
+                      'assets/images/fundo_correto.png',
+                      width: double.infinity,
+                      height: 100,
+                      fit: BoxFit.contain,
                     ),
-                    TextField(
-                      controller: _usernameController,
-                      decoration: InputDecoration(
-                        labelText: 'Usuário',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                      ),
+                    _buildTextField(_usernameController, 'Usuário'),
+                    const SizedBox(height: 20),
+                    _buildTextField(_passwordController, 'Senha', obscureText: true),
+                    const SizedBox(height: 20),
+                    // Botão "Entrar" com largura igual ao campo de texto
+                    SizedBox(
+                      width: double.infinity, // Faz o botão ocupar toda a largura disponível
+                      
+                      child: _buildButton('Entrar', _authUser),
                     ),
                     const SizedBox(height: 20),
-                    TextField(
-                      controller: _passwordController,
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        labelText: 'Senha',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    // Botão "Entrar como convidado" com largura igual ao campo de texto
+                    SizedBox(
+                      width: double.infinity, // Faz o botão ocupar toda a largura disponível
+                      child: TextButton(
+                        onPressed: () => Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(builder: (context) => const HomeScreen()),
+                        ),
+                        child: const Text('Entrar como convidado', style: TextStyle(color: Colors.blue)),
                       ),
-                    ),
-                    const SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: _authUser,
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      ),
-                      child: const Text('Entrar'),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pushReplacement(MaterialPageRoute(
-                          builder: (context) => const HomeScreen(),
-                        ));
-                      },
-                      child: const Text('Entrar como convidado', style: TextStyle(color: Colors.blue)),
                     ),
                   ],
                 ),
@@ -146,4 +118,32 @@ Widget build(BuildContext context) {
     ),
   );
 }
+
+
+
+  Widget _buildTextField(TextEditingController controller, String label, {bool obscureText = false}) {
+    return TextField(
+      controller: controller,
+      obscureText: obscureText,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+  }
+
+  Widget _buildButton(String text, VoidCallback onPressed) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.brown,
+        padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+      child: Text(
+        text,
+        style: const TextStyle(color: Colors.white),
+        ),
+    );
+  }
 }
