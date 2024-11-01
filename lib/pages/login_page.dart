@@ -31,18 +31,40 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
 
   Future<void> _authUser() async {
     final appState = Provider.of<AppState>(context, listen: false);
-    await Future.delayed(const Duration(milliseconds: 2250)); // Simula o tempo de resposta
+    await Future.delayed(const Duration(milliseconds: 2250));
     final isValid = appState.validateUser(_usernameController.text, _passwordController.text);
 
-    if (!mounted) return; // Garante que o widget ainda esteja na árvore
+    if (!mounted) return;
 
     if (isValid) {
       appState.updateStatus('online');
-      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const HomeScreen()));
+      _navigateToHomeScreen();
     } else {
       _showMessage('Usuário não existe ou a senha está incorreta');
     }
   }
+
+ void _navigateToHomeScreen() {
+  Navigator.of(context).pushReplacement(
+    PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => const HomeScreen(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(1.0, 0.0); // Começando à direita
+        const end = Offset.zero; // Terminando na posição original
+        const curve = Curves.easeInOut;
+
+        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var offsetAnimation = animation.drive(tween);
+
+        return SlideTransition(
+          position: offsetAnimation,
+          child: child,
+        );
+      },
+    ),
+  );
+}
+
 
   void _showMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
@@ -56,70 +78,63 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
     super.dispose();
   }
 
- @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    body: Stack(
-      fit: StackFit.expand,
-      children: [
-        Image.asset('assets/images/fundo_papel_amassado.png', fit: BoxFit.cover),
-        Center(
-          child: FadeTransition(
-            opacity: _opacityAnimation,
-            child: SingleChildScrollView(
-              child: Container(
-                width: 400, // Definindo uma largura fixa
-                height: 400, // Definindo uma altura fixa
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.9),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: const [
-                    BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4)),
-                  ],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Image.asset(
-                      'assets/images/fundo_correto.png',
-                      width: double.infinity,
-                      height: 100,
-                      fit: BoxFit.contain,
-                    ),
-                    _buildTextField(_usernameController, 'Usuário'),
-                    const SizedBox(height: 20),
-                    _buildTextField(_passwordController, 'Senha', obscureText: true),
-                    const SizedBox(height: 20),
-                    // Botão "Entrar" com largura igual ao campo de texto
-                    SizedBox(
-                      width: double.infinity, // Faz o botão ocupar toda a largura disponível
-                      
-                      child: _buildButton('Entrar', _authUser),
-                    ),
-                    const SizedBox(height: 20),
-                    // Botão "Entrar como convidado" com largura igual ao campo de texto
-                    SizedBox(
-                      width: double.infinity, // Faz o botão ocupar toda a largura disponível
-                      child: TextButton(
-                        onPressed: () => Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(builder: (context) => const HomeScreen()),
-                        ),
-                        child: const Text('Entrar como convidado', style: TextStyle(color: Colors.blue)),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset('assets/images/fundo_papel_amassado.png', fit: BoxFit.cover),
+          Center(
+            child: FadeTransition(
+              opacity: _opacityAnimation,
+              child: SingleChildScrollView(
+                child: Container(
+                  width: 400,
+                  height: 400,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.9),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: const [
+                      BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4)),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Image.asset(
+                        'assets/images/fundo_correto.png',
+                        width: double.infinity,
+                        height: 100,
+                        fit: BoxFit.contain,
                       ),
-                    ),
-                  ],
+                      _buildTextField(_usernameController, 'Usuário'),
+                      const SizedBox(height: 20),
+                      _buildTextField(_passwordController, 'Senha', obscureText: true),
+                      const SizedBox(height: 20),
+                      SizedBox(
+                        width: double.infinity,
+                        child: _buildButton('Entrar', _authUser),
+                      ),
+                      const SizedBox(height: 20),
+                      SizedBox(
+                        width: double.infinity,
+                        child: TextButton(
+                          onPressed: _navigateToHomeScreen,
+                          child: const Text('Entrar como convidado', style: TextStyle(color: Colors.blue)),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-      ],
-    ),
-  );
-}
-
-
+        ],
+      ),
+    );
+  }
 
   Widget _buildTextField(TextEditingController controller, String label, {bool obscureText = false}) {
     return TextField(
@@ -143,7 +158,7 @@ Widget build(BuildContext context) {
       child: Text(
         text,
         style: const TextStyle(color: Colors.white),
-        ),
+      ),
     );
   }
 }
