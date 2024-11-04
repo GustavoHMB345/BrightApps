@@ -2,6 +2,8 @@ import 'package:centralizador/pages/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:centralizador/state/app_state.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

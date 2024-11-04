@@ -2,8 +2,12 @@ import 'package:centralizador/pages/splash_screen.dart';
 import 'package:centralizador/state/app_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(); // Inicializa o Firebase
+
   runApp(
     ChangeNotifierProvider(
       create: (context) => AppState(), // Configura o Provider para gerenciar o estado
