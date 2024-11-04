@@ -1,5 +1,5 @@
-import 'package:centralizador/pages/login_page.dart'; // Importe a LoginScreen
 import 'package:flutter/material.dart';
+import 'login_page.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -15,33 +15,78 @@ class SplashScreenState extends State<SplashScreen> with SingleTickerProviderSta
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(duration: const Duration(milliseconds: 3000), vsync: this);
-    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
+    _controller = AnimationController(duration: const Duration(seconds: 2), vsync: this);
+    _animation = Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
+
     _controller.forward();
-
-    Future.delayed(const Duration(seconds: 3), () {
-      if (!mounted) return; 
-      _navigateToLogin(); // Método separado para navegar
+    
+    Future.delayed(const Duration(milliseconds: 3000), () {
+      if (!mounted) return;
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const LoginScreen()));
     });
-  }
-
-  void _navigateToLogin() {
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => const LoginScreen()),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector( // Adicionando GestureDetector
-      onTap: _navigateToLogin, // Navega ao tocar na tela
-      child: FadeTransition(
-        opacity: _animation,
-        child: Scaffold(
-          body: Center(
-            child: Image.asset('assets/images/fundo_correto.png'), 
+    return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 255, 194, 14),
+      body: Stack(
+        children: [
+          // Hexágono superior direito
+          AnimatedBuilder(
+            animation: _animation,
+            builder: (context, child) {
+              return Transform.translate(
+                offset: Offset(200 * _animation.value, -200 * _animation.value), // Move para o canto superior direito
+                child: Align(
+                  alignment: Alignment.center, // Origem do centro
+                  child: Image.asset(
+                    'assets/images/brown_hex.png',
+                    width: MediaQuery.of(context).size.width * 1.2,
+                    height: MediaQuery.of(context).size.width * 1.2,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              );
+            },
           ),
-        ),
+          // Hexágono superior esquerdo
+          AnimatedBuilder(
+            animation: _animation,
+            builder: (context, child) {
+              return Transform.translate(
+                offset: Offset(-200 * _animation.value, -200 * _animation.value), // Move para o canto superior esquerdo
+                child: Align(
+                  alignment: Alignment.center, // Origem do centro
+                  child: Image.asset(
+                    'assets/images/brown_hex.png',
+                    width: MediaQuery.of(context).size.width * 1.2,
+                    height: MediaQuery.of(context).size.width * 1.2,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              );
+            },
+          ),
+          // Hexágono inferior direito
+          AnimatedBuilder(
+            animation: _animation,
+            builder: (context, child) {
+              return Transform.translate(
+                offset: Offset(200 * _animation.value, 200 * _animation.value), // Move para o canto inferior direito
+                child: Align(
+                  alignment: Alignment.center, // Origem do centro
+                  child: Image.asset(
+                    'assets/images/brown_hex.png',
+                    width: MediaQuery.of(context).size.width * 1.2,
+                    height: MediaQuery.of(context).size.width * 1.2,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }

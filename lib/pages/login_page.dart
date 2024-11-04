@@ -117,7 +117,7 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
                         width: double.infinity,
                         child: _buildButton('Entrar', _authUser),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 10),
                       SizedBox(
                         width: double.infinity,
                         child: TextButton(
