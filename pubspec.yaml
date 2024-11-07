@@ -33,3 +33,8 @@ flutter:
     - assets/images/fundo_papel_amassado.png
     - assets/images/fundo_correto.png
     - assets/images/brown_hex.png
+
+fonts:
+  - family: Ubuntu
+    fonts:
+      - asset: fonts/Ubuntu-Medium.ttf

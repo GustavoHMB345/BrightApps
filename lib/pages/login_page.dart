@@ -17,6 +17,7 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
   final TextEditingController _passwordController = TextEditingController();
   late AnimationController _animationController;
   late Animation<double> _opacityAnimation;
+  bool _isLoading = false; // Adicionando o estado para o carregamento
 
   @override
   void initState() {
@@ -32,11 +33,19 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
   }
 
   Future<void> _authUser() async {
+    setState(() {
+      _isLoading = true; // Inicia a animação de carregamento
+    });
+    
     final appState = Provider.of<AppState>(context, listen: false);
     await Future.delayed(const Duration(milliseconds: 2250));
     final isValid = appState.validateUser(_usernameController.text, _passwordController.text);
 
     if (!mounted) return;
+
+    setState(() {
+      _isLoading = false; // Finaliza a animação de carregamento
+    });
 
     if (isValid) {
       appState.updateStatus('online');
@@ -46,27 +55,26 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
     }
   }
 
- void _navigateToHomeScreen() {
-  Navigator.of(context).pushReplacement(
-    PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => const HomeScreen(),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        const begin = Offset(1.0, 0.0); // Começando à direita
-        const end = Offset.zero; // Terminando na posição original
-        const curve = Curves.easeInOut;
+  void _navigateToHomeScreen() {
+    Navigator.of(context).pushReplacement(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => const HomeScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0); // Começando à direita
+          const end = Offset.zero; // Terminando na posição original
+          const curve = Curves.easeInOut;
 
-        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-        var offsetAnimation = animation.drive(tween);
+          var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          var offsetAnimation = animation.drive(tween);
 
-        return SlideTransition(
-          position: offsetAnimation,
-          child: child,
-        );
-      },
-    ),
-  );
-}
-
+          return SlideTransition(
+            position: offsetAnimation,
+            child: child,
+          );
+        },
+      ),
+    );
+  }
 
   void _showMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
@@ -82,6 +90,9 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
 
   @override
   Widget build(BuildContext context) {
+    // Pegando as dimensões da tela
+    double screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,
@@ -93,7 +104,7 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
               child: SingleChildScrollView(
                 child: Container(
                   width: 400,
-                  height: 400,
+                  height: screenHeight * 0.6, // Ajustando a altura para ser proporcional à tela
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.9),
@@ -103,14 +114,18 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
                     ],
                   ),
                   child: Column(
-                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Image.asset(
-                        'assets/images/fundo_correto.png',
-                        width: double.infinity,
-                        height: 100,
-                        fit: BoxFit.contain,
+                      // Usando Expanded para fazer o layout se adaptar melhor
+                      Expanded(
+                        flex: 1,
+                        child: Image.asset(
+                          'assets/images/fundo_correto.png',
+                          width: double.infinity,
+                          height: 100,
+                          fit: BoxFit.contain,
+                        ),
                       ),
+                      const SizedBox(height: 20),
                       _buildTextField(_usernameController, 'Usuário'),
                       const SizedBox(height: 20),
                       _buildTextField(_passwordController, 'Senha', obscureText: true),
@@ -127,6 +142,13 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
                           child: const Text('Entrar como convidado', style: TextStyle(color: Colors.blue)),
                         ),
                       ),
+                      if (_isLoading) // Exibe o carregamento quando necessário
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 20),
+                          child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(Color.fromARGB(255, 255, 194, 14)),
+                          ),
+                        ),
                     ],
                   ),
                 ),
