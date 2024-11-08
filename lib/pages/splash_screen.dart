@@ -9,15 +9,19 @@ class SplashScreen extends StatefulWidget {
 }
 
 class SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
-  late double hexWidth; // Largura do hexágono
-  late double hexHeight; // Altura do hexágono
+  late double hexWidth;
+  late double hexHeight;
   late AnimationController _controller;
   late Animation<double> _animation;
 
-  double hex1X = 0.1; // Posição X inicial do hexágono 1
-  double hex1Y = 1.0; // Posição Y inicial do hexágono 1
-  double hex2X = 0.9; // Posição X inicial do hexágono 2
-  double hex2Y = 0.001; // Posição Y inicial do hexágono 2
+  double hex1X = 0.1;
+  double hex1Y = 1.0;
+  double hex2X = 0.9;
+  double hex2Y = 0.001;
+  late double transparentHexWidth;
+  late double transparentHexHeight;
+
+  bool isBlocked = true; // Inicialmente bloqueado
 
   @override
   void initState() {
@@ -36,9 +40,8 @@ class SplashScreenState extends State<SplashScreen> with SingleTickerProviderSta
       _controller.forward();
     });
 
-    // Adiciona um atraso para navegar para a página de login após a animação
     Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) {
+      if (mounted && !isBlocked) {
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
             pageBuilder: (context, animation, secondaryAnimation) => const LoginScreen(),
@@ -55,6 +58,12 @@ class SplashScreenState extends State<SplashScreen> with SingleTickerProviderSta
     });
   }
 
+  void unblockNavigation() {
+    setState(() {
+      isBlocked = false;
+    });
+  }
+
   @override
   void dispose() {
     _controller.dispose();
@@ -64,8 +73,14 @@ class SplashScreenState extends State<SplashScreen> with SingleTickerProviderSta
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+
+    // Definir tamanho do hexágono animado
     hexWidth = MediaQuery.of(context).size.width * 0.8;
     hexHeight = hexWidth * 1.5;
+
+    // Para a borda_hex.png - Redefinindo para 60% da tela
+    transparentHexWidth = MediaQuery.of(context).size.width * 0.9; // 60% da largura da tela
+    transparentHexHeight = MediaQuery.of(context).size.height * 0.9; // 60% da altura da tela
   }
 
   @override
@@ -88,15 +103,40 @@ class SplashScreenState extends State<SplashScreen> with SingleTickerProviderSta
           return Stack(
             alignment: Alignment.center,
             children: [
+              // Hexágono animado com a imagem brown_hex.png
               Positioned(
                 left: hex1Position.dx,
                 top: hex1Position.dy,
-                child: buildHexagon(1),
+                child: buildHexagon(1, 'assets/images/brown_hex.png', boxFit: BoxFit.cover),
               ),
               Positioned(
                 left: hex2Position.dx,
                 top: hex2Position.dy,
-                child: buildHexagon(2),
+                child: buildHexagon(2, 'assets/images/brown_hex.png', boxFit: BoxFit.cover),
+              ),
+              // Imagem transparente 1 com borda_hex.png, sem animação
+              Positioned(
+                left: MediaQuery.of(context).size.width * - 1.0,
+                top: MediaQuery.of(context).size.height * - 0.08,
+                child: buildHexagon(
+                  3, 
+                  'assets/images/borda_hex.png',
+                  width: transparentHexWidth, 
+                  height: transparentHexHeight,
+                  boxFit: BoxFit.fill, // Manter dimensões exatas sem distorcer
+                ),
+              ),
+              // Imagem transparente 2 com borda_hex.png, sem animação
+              Positioned(
+                left: MediaQuery.of(context).size.width * 0.6,
+                top: MediaQuery.of(context).size.height * 0.6,
+                child: buildHexagon(
+                  4, 
+                  'assets/images/borda_hex.png',
+                  width: transparentHexWidth, 
+                  height: transparentHexHeight,
+                  boxFit: BoxFit.fill, // Manter dimensões exatas sem distorcer
+                ),
               ),
               Positioned(
                 top: MediaQuery.of(context).size.height * 0.5,
@@ -106,7 +146,7 @@ class SplashScreenState extends State<SplashScreen> with SingleTickerProviderSta
                     fontSize: 50,
                     color: Colors.brown,
                     fontWeight: FontWeight.bold,
-                    fontFamily: 'Ubuntu', // Usa a fonte Ubuntu Medium
+                    fontFamily: 'Ubuntu',
                   ),
                 ),
               ),
@@ -117,15 +157,15 @@ class SplashScreenState extends State<SplashScreen> with SingleTickerProviderSta
     );
   }
 
-  Widget buildHexagon(int number) {
+  Widget buildHexagon(int number, String imagePath, {double? width, double? height, BoxFit? boxFit}) {
     return Stack(
       alignment: Alignment.center,
       children: [
         Image.asset(
-          'assets/images/brown_hex.png',
-          width: hexWidth,
-          height: hexHeight,
-          fit: BoxFit.cover,
+          imagePath,
+          width: width ?? hexWidth,  // Usa `width` se fornecido, senão `hexWidth`
+          height: height ?? hexHeight,  // Usa `height` se fornecido, senão `hexHeight`
+          fit: boxFit ?? BoxFit.none,  // Usa `boxFit` se fornecido, senão `BoxFit.none`
         ),
         Text(
           number.toString(),
