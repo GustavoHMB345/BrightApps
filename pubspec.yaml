@@ -30,7 +30,7 @@ flutter:
   assets:
     - assets/images/background.png
     - assets/images/Marca_Bright_Bee.png
-    - assets/images/fundo_papel_amassado.png
+    - assets/images/fundo_papel_amassado.jpg
     - assets/images/fundo_correto.png
     - assets/images/brown_hex.png
     - assets/images/borda_hex.png

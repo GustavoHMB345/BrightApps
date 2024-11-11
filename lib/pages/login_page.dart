@@ -2,8 +2,6 @@ import 'package:centralizador/pages/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:centralizador/state/app_state.dart';
 import 'package:provider/provider.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -97,7 +95,7 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
       body: Stack(
         fit: StackFit.expand,
         children: [
-          Image.asset('assets/images/fundo_papel_amassado.png', fit: BoxFit.cover),
+          Image.asset('assets/images/fundo_papel_amassado.jpg', fit: BoxFit.cover),
           Center(
             child: FadeTransition(
               opacity: _opacityAnimation,
