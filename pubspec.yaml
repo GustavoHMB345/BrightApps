@@ -34,6 +34,7 @@ flutter:
     - assets/images/fundo_correto.png
     - assets/images/brown_hex.png
     - assets/images/borda_hex.png
+    - assets/images/fundo_amarelo.png
 
 fonts:
   - family: Ubuntu

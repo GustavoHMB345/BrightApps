@@ -21,7 +21,7 @@ class SplashScreenState extends State<SplashScreen> with SingleTickerProviderSta
   late double transparentHexWidth;
   late double transparentHexHeight;
 
-  bool isBlocked = true; // Inicialmente bloqueado
+  bool isBlocked = false; // Inicialmente bloqueado
 
   @override
   void initState() {
@@ -60,7 +60,7 @@ class SplashScreenState extends State<SplashScreen> with SingleTickerProviderSta
 
   void unblockNavigation() {
     setState(() {
-      isBlocked = false;
+      isBlocked = true;
     });
   }
 
@@ -86,73 +86,57 @@ class SplashScreenState extends State<SplashScreen> with SingleTickerProviderSta
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 255, 194, 14),
-      body: AnimatedBuilder(
-        animation: _animation,
-        builder: (context, child) {
-          final Offset hex1Position = Offset(
-            MediaQuery.of(context).size.width * (hex1X + _animation.value) - hexWidth / 2,
-            MediaQuery.of(context).size.height * hex1Y - hexHeight / 2,
-          );
+      // Mudança no background para usar imagem local
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/fundo_amarelo.png'), // Imagem local para o fundo
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: AnimatedBuilder(
+          animation: _animation,
+          builder: (context, child) {
+            final Offset hex1Position = Offset(
+              MediaQuery.of(context).size.width * (hex1X + _animation.value) - hexWidth / 2,
+              MediaQuery.of(context).size.height * hex1Y - hexHeight / 2,
+            );
 
-          final Offset hex2Position = Offset(
-            MediaQuery.of(context).size.width * (hex2X - _animation.value) - hexWidth / 2,
-            MediaQuery.of(context).size.height * hex2Y - hexHeight / 2,
-          );
+            final Offset hex2Position = Offset(
+              MediaQuery.of(context).size.width * (hex2X - _animation.value) - hexWidth / 2,
+              MediaQuery.of(context).size.height * hex2Y - hexHeight / 2,
+            );
 
-          return Stack(
-            alignment: Alignment.center,
-            children: [
-              // Hexágono animado com a imagem brown_hex.png
-              Positioned(
-                left: hex1Position.dx,
-                top: hex1Position.dy,
-                child: buildHexagon(1, 'assets/images/brown_hex.png', boxFit: BoxFit.cover),
-              ),
-              Positioned(
-                left: hex2Position.dx,
-                top: hex2Position.dy,
-                child: buildHexagon(2, 'assets/images/brown_hex.png', boxFit: BoxFit.cover),
-              ),
-              // Imagem transparente 1 com borda_hex.png, sem animação
-              Positioned(
-                left: MediaQuery.of(context).size.width * - 1.0,
-                top: MediaQuery.of(context).size.height * - 0.08,
-                child: buildHexagon(
-                  3, 
-                  'assets/images/borda_hex.png',
-                  width: transparentHexWidth, 
-                  height: transparentHexHeight,
-                  boxFit: BoxFit.fill, // Manter dimensões exatas sem distorcer
+            return Stack(
+              alignment: Alignment.center,
+              children: [
+                // Hexágono animado com a imagem brown_hex.png
+                Positioned(
+                  left: hex1Position.dx,
+                  top: hex1Position.dy,
+                  child: buildHexagon(1, 'assets/images/brown_hex.png', boxFit: BoxFit.cover),
                 ),
-              ),
-              // Imagem transparente 2 com borda_hex.png, sem animação
-              Positioned(
-                left: MediaQuery.of(context).size.width * 0.6,
-                top: MediaQuery.of(context).size.height * 0.6,
-                child: buildHexagon(
-                  4, 
-                  'assets/images/borda_hex.png',
-                  width: transparentHexWidth, 
-                  height: transparentHexHeight,
-                  boxFit: BoxFit.fill, // Manter dimensões exatas sem distorcer
+                Positioned(
+                  left: hex2Position.dx,
+                  top: hex2Position.dy,
+                  child: buildHexagon(2, 'assets/images/brown_hex.png', boxFit: BoxFit.cover),
                 ),
-              ),
-              Positioned(
-                top: MediaQuery.of(context).size.height * 0.5,
-                child: const Text(
-                  'Bright Links',
-                  style: TextStyle(
-                    fontSize: 50,
-                    color: Colors.brown,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Ubuntu',
+                Positioned(
+                  top: MediaQuery.of(context).size.height * 0.5,
+                  child: const Text(
+                    'Bright Links',
+                    style: TextStyle(
+                      fontSize: 50,
+                      color: Colors.brown,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Ubuntu',
+                    ),
                   ),
                 ),
-              ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -166,14 +150,6 @@ class SplashScreenState extends State<SplashScreen> with SingleTickerProviderSta
           width: width ?? hexWidth,  // Usa `width` se fornecido, senão `hexWidth`
           height: height ?? hexHeight,  // Usa `height` se fornecido, senão `hexHeight`
           fit: boxFit ?? BoxFit.none,  // Usa `boxFit` se fornecido, senão `BoxFit.none`
-        ),
-        Text(
-          number.toString(),
-          style: const TextStyle(
-            fontSize: 24,
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
         ),
       ],
     );
