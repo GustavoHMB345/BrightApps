@@ -1,6 +1,6 @@
-import 'package:centralizador/pages/home_screen.dart';
+import 'package:brightapps/pages/home_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:centralizador/state/app_state.dart';
+import 'package:brightapps/state/app_state.dart';
 import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {

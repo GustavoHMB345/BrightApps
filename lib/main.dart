@@ -1,5 +1,5 @@
-import 'package:centralizador/pages/splash_screen.dart'; 
-import 'package:centralizador/state/app_state.dart';
+import 'package:brightapps/pages/splash_screen.dart'; 
+import 'package:brightapps/state/app_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

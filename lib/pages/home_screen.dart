@@ -1,4 +1,4 @@
-import 'package:centralizador/state/app_state.dart';
+import 'package:brightapps/state/app_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -15,8 +15,10 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin(); 
+      FlutterLocalNotificationsPlugin();
 
+  final TextEditingController _searchController = TextEditingController();
+  bool _isSearching = false;
   String searchTerm = '';
 
   @override
@@ -34,82 +36,44 @@ class _HomeScreenState extends State<HomeScreen> {
 
     await _flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
-    await _flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-            IOSFlutterLocalNotificationsPlugin>()
-        ?.requestPermissions(
-      alert: true,
-      badge: true,
-      sound: true,
-    ).then((value) {
-      if (value == null || !value) {
-        _showPermissionDeniedDialog();
-      }
-    });
-  }
-
-  void _showPermissionDeniedDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Permissão de Notificações Negada"),
-          content: const Text(
-              "Você negou a permissão para enviar notificações. Você pode ativá-las nas configurações do aplicativo."),
-          actions: [
-            TextButton(
-              child: const Text("Abrir Configurações"),
-              onPressed: () {
-                _openAppSettings();
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: const Text("Fechar"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> _openAppSettings() async {
-    Uri iosUri = Uri(scheme: 'app-settings');
-    if (await canLaunchUrl(iosUri)) {
-      await launchUrl(iosUri);
-    } else {
-      const String androidPackage = 'com.brightlinks.app';
-      Uri androidUri = Uri.parse('market://details?id=$androidPackage');
-      if (await canLaunchUrl(androidUri)) {
-        await launchUrl(androidUri);
-      }
+    if (Platform.isIOS) {
+      await _flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<
+              IOSFlutterLocalNotificationsPlugin>()
+          ?.requestPermissions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
     }
   }
 
-  // Método para exibir o diálogo
-void _launchURLDialog(Uri uri) async {
+  void toggleSearch() {
+    setState(() {
+      _isSearching = !_isSearching;
+    });
+  }
+
+  void _confirmLogout() {
   showDialog(
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: const Text("Abrir Link"),
-        content: const Text("Deseja abrir o link no app ou no navegador externo?"),
+        title: const Text("Confirmação de Logout"),
+        content: const Text("Você tem certeza que deseja sair?"),
         actions: <Widget>[
           TextButton(
-            child: const Text("Navegador Externo"),
-            onPressed: () async {
+            child: const Text("Cancelar"),
+            onPressed: () {
               Navigator.of(context).pop();
-              _openURL(uri, LaunchMode.externalApplication); // Chama o método renomeado
             },
           ),
           TextButton(
-            child: const Text("App"),
-            onPressed: () async {
+            child: const Text("Sair"),
+            onPressed: () {
               Navigator.of(context).pop();
-              _openURL(uri, LaunchMode.inAppWebView); // Chama o método renomeado
+              Provider.of<AppState>(context, listen: false).updateStatus('Offline');
+              Navigator.pushReplacementNamed(context, '/');
             },
           ),
         ],
@@ -118,44 +82,61 @@ void _launchURLDialog(Uri uri) async {
   );
 }
 
-// Método para abrir o link com o modo especificado
-Future<void> _openURL(Uri uri, LaunchMode mode) async {
-  try {
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: mode);
-    }
-  } catch (e) {
-    print(e.toString());
-  }
-}
 
-void _confirmLogout() {
-  showDialog(context: context,
-  builder: (BuildContext context) {
-    return AlertDialog(
-      title: const Text("Confirmação de de Logout"),
-      content: const Text("Você tem certeza que deseja sair?"),
-      actions: <Widget>[
-        TextButton(
-          child: const Text("Cancelar"),
-          onPressed:() {
-            Navigator.of(context).pop();
-          },
-        ),
-        TextButton(
-          child:const Text("Sair") ,
-          onPressed: () {
-            Navigator.of(context).pop();
-            Provider.of<AppState>(context, listen: false).updateStatus('Offline');
-            Navigator.pushReplacementNamed(context, '/');
-          },
-          ),
-      ],
+
+  Widget buildSearchBar() {
+    return TextField(
+      controller: _searchController,
+      autofocus: true,
+      decoration: const InputDecoration(
+        hintText: 'Pesquise...',
+        border: InputBorder.none,
+      ),
+      onChanged: (value) {
+        setState(() {
+          searchTerm = value;
+        });
+      },
     );
-  },
-  );
-}
+  }
 
+  List<Map<String, dynamic>> filterItems(List<Map<String, dynamic>> items) {
+    if (searchTerm.isEmpty) {
+      return items;
+    }
+    return items
+        .where((item) =>
+            item['title'].toLowerCase().contains(searchTerm.toLowerCase()))
+        .toList();
+  }
+
+  Future<void> _launchURLDialog(Uri uri) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Abrir Link"),
+          content: const Text("Deseja abrir o link no app ou no navegador externo?"),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("Navegador Externo"),
+              onPressed: () async {
+                Navigator.of(context).pop();
+                await launchUrl(uri, mode: LaunchMode.externalApplication);
+              },
+            ),
+            TextButton(
+              child: const Text("App"),
+              onPressed: () async {
+                Navigator.of(context).pop();
+                await launchUrl(uri, mode: LaunchMode.inAppWebView);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -240,6 +221,8 @@ void _confirmLogout() {
         'color': Colors.blue,
       },
     ];
+    
+    
 
     List<Map<String, dynamic>> filterItems(List<Map<String, dynamic>> items) {
       if (searchTerm.isEmpty) {
@@ -331,21 +314,23 @@ void _confirmLogout() {
                     ),
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 70),
 
                 // Nome acima do carrossel 1
-                const Text(
-                  'Infantil',
+                const Align(alignment: Alignment.centerLeft,
+                child: Text(
+                  'Ensino Infantil',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
                 ),
                 const SizedBox(height: 10),
 
                 // Carrossel 1
                 CarouselSlider(
                   options: CarouselOptions(
-                    height: 180,
-                    viewportFraction: 0.6, // Mostra uma fração do carrossel
-                    enlargeCenterPage: true, // Destaca o item central
+                    height: 200,
+                    viewportFraction: 0.4, // Mostra uma fração do carrossel
+                    aspectRatio: 6.0,
                   ),
                   items: filterItems(carouselItems1).map((item) {
                     return Builder(
@@ -353,15 +338,14 @@ void _confirmLogout() {
                         return InkWell(
                           onTap: () => _launchURLDialog(item['url']),
                           child: Container(
-                            width: 700, // Modifique o tamanho da largura dos cards
-                            height: 150, // Modifique a altura dos cards
+                            width: 150, // Modifique o tamanho da largura dos cards
                             margin: const EdgeInsets.symmetric(horizontal: 5.0),
                             decoration: BoxDecoration(
                               color: item['color'],
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Center(
-                              child: Text(
+                                child: Text(
                                 item['title'],
                                 style: const TextStyle(
                                   color: Colors.white,
@@ -377,21 +361,24 @@ void _confirmLogout() {
                   }).toList(),
                 ),
 
-                const SizedBox(height: 10),
+                const SizedBox(height: 30),
 
                 // Nome acima do carrossel 2
-                const Text(
-                  'Fund 1',
+                const Align(alignment: Alignment.centerLeft,
+                child: Text(
+                  'Ensino Fundamental 1',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
+                ),
                 const SizedBox(height: 10),
+                
 
                 // Carrossel 2
                 CarouselSlider(
                   options: CarouselOptions(
-                    height: 180,
-                    viewportFraction: 0.6,
-                    enlargeCenterPage: true,
+                    height: 200,
+                    viewportFraction: 0.4,
+                    aspectRatio: 6.0,
                   ),
                   items: filterItems(carouselItems2).map((item) {
                     return Builder(
@@ -399,8 +386,7 @@ void _confirmLogout() {
                         return InkWell(
                           onTap: () => _launchURLDialog(item['url']),
                           child: Container(
-                            width: 700,
-                            height: 150,
+                            width: 150,
                             margin: const EdgeInsets.symmetric(horizontal: 5.0),
                             decoration: BoxDecoration(
                               color: item['color'],
@@ -423,12 +409,14 @@ void _confirmLogout() {
                   }).toList(),
                 ),
 
-                const SizedBox(height: 10),
+                const SizedBox(height: 30),
 
                 // Nome acima do carrossel 3
-                const Text(
-                  'Fund 2',
+                const Align(alignment: Alignment.centerLeft,
+                child: Text(
+                  'Ensino Fundamental 2',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
                 ),
                 const SizedBox(height: 10),
 
@@ -436,8 +424,8 @@ void _confirmLogout() {
                 CarouselSlider(
                   options: CarouselOptions(
                     height: 180,
-                    viewportFraction: 0.6,
-                    enlargeCenterPage: true,
+                    viewportFraction: 0.4,
+                    aspectRatio: 6.0,
                   ),
                   items: filterItems(carouselItems3).map((item) {
                     return Builder(
@@ -445,8 +433,7 @@ void _confirmLogout() {
                         return InkWell(
                           onTap: () => _launchURLDialog(item['url']),
                           child: Container(
-                            width: 700,
-                            height: 150,
+                            width: 150,
                             margin: const EdgeInsets.symmetric(horizontal: 5.0),
                             decoration: BoxDecoration(
                               color: item['color'],
@@ -469,20 +456,25 @@ void _confirmLogout() {
                   }).toList(),  
                 ),
 
-                const SizedBox(height: 10),
+                const SizedBox(height: 30),
+                  
 
                 // Nome acima do carrossel 4
-                const Text('Ensino médio',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                const Align(alignment: Alignment.centerLeft,
+                child: Text('Ensino médio',
+                  style: TextStyle(fontSize: 18, 
+                  fontWeight: FontWeight.bold,
                 ),
-                const SizedBox(height: 10),
+                ), 
+                ),
+                 const SizedBox(height: 10),
 
                 // Carrossel 4
                 CarouselSlider(
                   options: CarouselOptions(
                     height: 180,
-                    viewportFraction: 0.6,  
-                    enlargeCenterPage: true,
+                    viewportFraction: 0.4,
+                    aspectRatio: 6.0,  
                   ),
                   items: filterItems(carouselItems4).map((item) {
                     return Builder(
@@ -490,8 +482,7 @@ void _confirmLogout() {
                         return InkWell(
                           onTap: () => _launchURLDialog(item['url']),
                           child: Container(
-                            width: 700,
-                            height: 150,
+                            width: 150,
                             margin: const EdgeInsets.symmetric(horizontal: 5.0),
                             decoration: BoxDecoration(
                               color: item['color'],
@@ -505,20 +496,19 @@ void _confirmLogout() {
                                   fontSize: 18.0,
                                   fontWeight: FontWeight.bold,
                                 ),
-                              ),
-                            ),
+                              ),          ),
                           ),
                         );
                       },
                     );
                   }).toList(),
                 ),
-                const SizedBox(height: 20),
-              ],
+                const SizedBox(height: 30),
+            ],
             ),
           ),
-        ],
-      ),
+          ],
+          ),
     );
   }
-}
+  }

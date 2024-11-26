@@ -1,4 +1,4 @@
-import 'package:centralizador/pages/login_page.dart';
+import 'package:brightapps/pages/login_page.dart';
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {

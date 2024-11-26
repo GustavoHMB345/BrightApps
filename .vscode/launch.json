@@ -1,25 +1,28 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "BrightApps",
+            "name": "BrightApps (debug mode)",
             "request": "launch",
-            "type": "dart"
+            "type": "dart",
+            "cwd": "C:\\Users\\Informatica\\Documents\\brightapps",
+            "program": "lib/main.dart"
         },
         {
             "name": "BrightApps (profile mode)",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "profile"
+            "flutterMode": "profile",
+            "cwd": "C:\\Users\\Informatica\\Documents\\brightapps",
+            "program": "lib/main.dart"
         },
         {
             "name": "BrightApps (release mode)",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "release"
+            "flutterMode": "release",
+            "cwd": "C:\\Users\\Informatica\\Documents\\brightapps",
+            "program": "lib/main.dart"
         }
     ]
 }

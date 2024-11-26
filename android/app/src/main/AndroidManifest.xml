@@ -1,8 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
     <uses-permission android:name="android.permission.INTERNET" />
-
 
     <application
         android:label="centralizador"
@@ -23,11 +21,13 @@
                 android:name="io.flutter.embedding.android.NormalTheme"
                 android:resource="@style/NormalTheme" />
 
+            <!-- Intent principal de inicialização do aplicativo -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <!-- Intent para abrir links HTTP e HTTPS do aplicativo -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -35,13 +35,61 @@
                 <data android:scheme="http" />
                 <data android:scheme="https" />
             </intent-filter>
+
+            <!-- Intent-filters específicos para cada URL -->
+            <!-- Portal do Aluno -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:host="bbsltda149898.rm.cloudtotvs.com.br" android:pathPrefix="/FrameHTML/Web/App/Edu/PortalEducacional/login" android:scheme="https" />
+            </intent-filter>
+
+            <!-- Educonnect -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:host="apps.apple.com" android:pathPrefix="/br/app/meu-educonnect/id1255287155" android:scheme="https" />
+                <data android:host="play.google.com" android:pathPrefix="/store/apps/details" android:scheme="https" />
+            </intent-filter>
+
+            <!-- Daily Connect -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:host="apps.apple.com" android:pathPrefix="/br/app/daily-connect-child-care/id502426621" android:scheme="https" />
+                <data android:host="play.google.com" android:pathPrefix="/store/apps/details" android:scheme="https" />
+            </intent-filter>
+
+            <!-- Toddle -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:host="apps.apple.com" android:pathPrefix="/br/app/toddle-educator/id1529065681" android:scheme="https" />
+                <data android:host="play.google.com" android:pathPrefix="/store/apps/details" android:scheme="https" />
+            </intent-filter>
+
+            <!-- Novo Intent Filter para o seu esquema personalizado -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="myapp" />
+                <data android:host="example.com" />
+            </intent-filter>
+
         </activity>
 
+        <!-- Configuração para Flutter Embedding -->
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
 
+    <!-- Consultas de intenções (queries) -->
     <queries>
         <intent>
             <action android:name="android.intent.action.VIEW" />
@@ -49,7 +97,7 @@
         </intent>
         <intent>
             <action android:name="android.intent.action.SEND" />
-            <data android:scheme="*/*" />
+            <data android:mimeType="*/*" />
         </intent>
         <intent>
             <action android:name="android.intent.action.VIEW" />
